@@ -18,6 +18,10 @@ public class ProjectService {
                 .orElseThrow(() -> new ProjectNotFoundException(id));
     }
 
+    public void createProject(Project project) {
+        projectRepository.save(project);
+    }
+
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
