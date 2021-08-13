@@ -42,4 +42,8 @@ public class ProjectService {
             projectRepository.save(projectToUpdate);
         }
     }
+
+    public void deleteProject(String id) {
+        projectRepository.deleteById(id);
+    }
 }

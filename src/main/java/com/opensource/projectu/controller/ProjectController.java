@@ -52,7 +52,7 @@ public class ProjectController {
     }
 
     @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> updateTutorial(@PathVariable("id") String id, @RequestBody Project updatedProject) {
+    public ResponseEntity<Project> update(@PathVariable("id") String id, @RequestBody Project updatedProject) {
         Optional<Project> projectData = projectService.getProjectById(id);
 
         if (projectData.isPresent()) {
@@ -60,6 +60,16 @@ public class ProjectController {
             return new ResponseEntity<>(updatedProject, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/projects/{id}")
+    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
+        try {
+            projectService.deleteProject(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
