@@ -50,4 +50,16 @@ public class ProjectController {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping("/projects/{id}")
+    public ResponseEntity<Project> updateTutorial(@PathVariable("id") String id, @RequestBody Project updatedProject) {
+        Optional<Project> projectData = projectService.getProjectById(id);
+
+        if (projectData.isPresent()) {
+            projectService.updateProject(id, updatedProject);
+            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
