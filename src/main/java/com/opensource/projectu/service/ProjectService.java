@@ -22,10 +22,16 @@ public class ProjectService {
     }
 
     public void createProject(Project project) {
+        // TODO: check if all necessary fields are set
+        // TODO: preset specific fields like state -> always INITIATED at beginning
+        // TODO: validate fields
         projectRepository.save(project);
     }
 
     public void updateProject(String id, Project updatedProject) {
+        // TODO: check if all necessary fields are set
+        // TODO: validate fields
+
         Optional<Project> project = projectRepository.findById(id);
 
         if(project.isPresent()) {
