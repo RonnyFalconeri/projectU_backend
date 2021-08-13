@@ -1,11 +1,11 @@
 package com.opensource.projectu.service;
 
 import com.opensource.projectu.model.Project;
-import com.opensource.projectu.exception.ProjectNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -13,9 +13,8 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
-    public Project getProjectById(String id) {
-        return projectRepository.findProjectById(id)
-                .orElseThrow(() -> new ProjectNotFoundException(id));
+    public Optional<Project> getProjectById(String id) {
+        return projectRepository.findProjectById(id);
     }
 
     public void createProject(Project project) {
