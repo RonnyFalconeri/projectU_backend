@@ -20,7 +20,6 @@ public class Project {
     private int estimatedDurationInHours;
     private LocalDateTime createdAt;
     private String expectedResult;
-    private String owner;
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
     private String actualResult;
@@ -32,8 +31,7 @@ public class Project {
                    ProjectComplexity complexity,
                    int estimatedDurationInHours,
                    LocalDateTime createdAt,
-                   String expectedResult,
-                   String owner) {
+                   String expectedResult) {
         this.title = title;
         this.description = description;
         this.subProjects = subProjects;
@@ -42,6 +40,5 @@ public class Project {
         this.estimatedDurationInHours = estimatedDurationInHours;
         this.createdAt = createdAt;
         this.expectedResult = expectedResult;
-        this.owner = owner;
     }
 }

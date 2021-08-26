@@ -43,7 +43,6 @@ public class ProjectService {
             projectToUpdate.setState(updatedProject.getState());
             projectToUpdate.setComplexity(updatedProject.getComplexity());
             projectToUpdate.setEstimatedDurationInHours(updatedProject.getEstimatedDurationInHours());
-            projectToUpdate.setOwner(updatedProject.getOwner());
 
             projectRepository.save(projectToUpdate);
         }
