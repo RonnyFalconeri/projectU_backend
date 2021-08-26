@@ -1,6 +1,6 @@
 package com.opensource.projectu.model;
 
-public enum ProjectState {
+public enum State {
     INITIATED,
     IN_PROGRESS,
     HALTED,

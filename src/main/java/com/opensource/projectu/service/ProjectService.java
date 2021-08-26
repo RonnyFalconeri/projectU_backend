@@ -39,7 +39,7 @@ public class ProjectService {
 
             projectToUpdate.setTitle(updatedProject.getTitle());
             projectToUpdate.setDescription(updatedProject.getDescription());
-            projectToUpdate.setSubProjects(updatedProject.getSubProjects());
+            projectToUpdate.setTasks(updatedProject.getTasks());
             projectToUpdate.setState(updatedProject.getState());
             projectToUpdate.setComplexity(updatedProject.getComplexity());
             projectToUpdate.setEstimatedDurationInHours(updatedProject.getEstimatedDurationInHours());

@@ -1,6 +1,6 @@
 package com.opensource.projectu.model;
 
-public enum ProjectComplexity {
+public enum Complexity {
     EASY,
     MEDIUM,
     DIFFICULT
