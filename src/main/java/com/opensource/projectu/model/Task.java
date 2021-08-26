@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-//TODO add Document Annotation if repository is modified.
 public class Task {
     @Id
     private String id;
