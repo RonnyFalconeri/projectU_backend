@@ -1,37 +1,36 @@
 package com.opensource.projectu.controller;
 
-import com.opensource.projectu.model.Project;
+import com.opensource.projectu.openapi.model.Project;
+import com.opensource.projectu.openapi.api.ProjectsApi;
 import com.opensource.projectu.service.ProjectService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("api/")
 @AllArgsConstructor
-public class ProjectController {
+public class ProjectController implements ProjectsApi {
 
     private final ProjectService projectService;
 
-    @GetMapping("projects")
-    public ResponseEntity<List<Project>> all() {
+    @Override
+    public ResponseEntity<List<Project>> getAllProjects() {
         try {
-            List<Project> projects = new ArrayList<>(projectService.getAllProjects());
+            List<Project> projects = projectService.getAllProjects();
 
             if (projects.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
             return new ResponseEntity<>(projects, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/projects/{id}")
-    public ResponseEntity<Project> one(@PathVariable String id) {
+    @Override
+    public ResponseEntity<Project> getProjectById(String id) {
         Optional<Project> projectData = projectService.getProjectById(id);
 
         if (projectData.isPresent()) {
@@ -41,8 +40,8 @@ public class ProjectController {
         }
     }
 
-    @PostMapping("/projects")
-    public ResponseEntity<Project> create(@RequestBody Project project) {
+    @Override
+    public ResponseEntity<Project> createProject(Project project) {
         try {
             projectService.createProject(project);
             return new ResponseEntity<>(project, HttpStatus.CREATED);
@@ -51,20 +50,20 @@ public class ProjectController {
         }
     }
 
-    @PutMapping("/projects/{id}")
-    public ResponseEntity<Project> update(@PathVariable("id") String id, @RequestBody Project updatedProject) {
+    @Override
+    public ResponseEntity<Project> updateProject(String id, Project project) {
         Optional<Project> projectData = projectService.getProjectById(id);
 
         if (projectData.isPresent()) {
-            projectService.updateProject(id, updatedProject);
-            return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+            projectService.updateProject(id, project);
+            return new ResponseEntity<>(project, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    @DeleteMapping("/projects/{id}")
-    public ResponseEntity<HttpStatus> delete(@PathVariable("id") String id) {
+    @Override
+    public ResponseEntity<Void> deleteProject(String id) {
         try {
             projectService.deleteProject(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);

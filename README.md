@@ -7,6 +7,7 @@ about frontend
 
 ## Technology Stack
 Java with Spring Boot
+openapi
 MongoDB, Mongo Express
 Docker
 diagramm
@@ -24,3 +25,5 @@ start docker container with docker-compose up
 ### Start application
 how to start spring boot application
 open browser localhost
+
+### How to generate openapi
