@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
   title: projectU REST API
   description: A REST API for the application projectU
@@ -7,11 +7,13 @@ info:
 paths:
   /projects:
     get:
+      tags:
+        - project
       summary: Get all projects
       description: Returns every Project
       operationId: getAllProjects
       responses:
-        200:
+        '200':
           description: successful operation
           content:
             application/json:
@@ -19,8 +21,10 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Project'
-                  
+
     post:
+      tags:
+        - project
       summary: Create new project
       operationId: createProject
       requestBody:
@@ -31,7 +35,7 @@ paths:
               $ref: '#/components/schemas/Project'
         required: true
       responses:
-        201:
+        '201':
           description: Project created
           headers:
             Location:
@@ -50,45 +54,49 @@ paths:
             getProjectById:
               operationId: getProjectById
               parameters:
-                id: '$response.body#/id'
-                
+                id: $response.body#/id
+
   /projects/{id}:
     get:
+      tags:
+        - project
       summary: Get project by id
       description: Returns a single project
       operationId: getProjectById
       parameters:
-      - name: id
-        in: path
-        description: ID of project to return
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: ID of project to return
+          required: true
+          schema:
+            type: string
       responses:
-        200:
+        '200':
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-                
+
     post:
+      tags:
+        - project
       summary: Updates a project
       operationId: updateProject
       parameters:
-      - name: id
-        in: path
-        description: ID of project to be updated
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: ID of project to be updated
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Project'
       responses:
-        201:
+        '201':
           description: Project updated
           headers:
             Location:
@@ -107,26 +115,35 @@ paths:
             getProjectById:
               operationId: getProjectById
               parameters:
-                id: '$response.body#/id'
-                
+                id: $response.body#/id
+
     delete:
+      tags:
+        - project
       summary: Deletes a project
       operationId: deleteProject
       parameters:
-      - name: id
-        in: path
-        description: Project id to delete
-        required: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          description: Project id to delete
+          required: true
+          schema:
+            type: string
       responses:
-        204:
+        '204':
           description: Project successfully deleted
-  
+
 components:
   schemas:
     Project:
       type: object
+      required:
+        - id
+        - title
+        - tasks
+        - state
+        - complexity
+        - createdAt
       properties:
         id:
           type: string
@@ -154,9 +171,32 @@ components:
           type: string
         finishedAt:
           type: string
-          
+      example:
+        id: 1234
+        title: Learn to design an API
+        description: A project for learning and applying REST API practises
+        tasks:
+          - id: 123
+            title: Learn OpenApi
+            description: A task for learning the OpenApi specification
+            done: false
+            estimatedDurationInHours: 12
+            result: More knowledge about OpenApi
+        state: IN_PROGRESS
+        complexity: EASY
+        estimatedDurationInHours: 23
+        expectedResult: Learning something.
+        actualResult: Learned a lot!
+        createdAt: 01.01.2021
+        startedAt: 02.01.2021
+        finishedAt: 03.01.2021
+
     Task:
       type: object
+      required:
+        - id
+        - title
+        - done
       properties:
         id:
           type: string
@@ -164,26 +204,37 @@ components:
           type: string
         description:
           type: string
-        state:
-          $ref: '#/components/schemas/State'
-        complexity:
-          $ref: '#/components/schemas/Complexity'
+        done:
+          type: boolean
         estimatedDurationInHours:
           type: integer
         result:
           type: string
-          
+      example:
+        id: 123
+        title: Learn OpenApi
+        description: A task for learning the OpenApi specification
+        done: false
+        estimatedDurationInHours: 12
+        result: More knowledge about OpenApi
+
     State:
       type: string
+      nullable: false
       enum:
         - INITIATED
         - IN_PROGRESS
         - HALTED
         - FINISHED
-        
+
     Complexity:
       type: string
+      nullable: false
       enum:
         - EASY
         - MEDIUM
         - DIFFICULT
+
+tags:
+  - name: project
+    description: An operation including projects
