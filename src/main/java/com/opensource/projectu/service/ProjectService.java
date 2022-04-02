@@ -1,6 +1,6 @@
 package com.opensource.projectu.service;
 
-import com.opensource.projectu.model.Project;
+import com.opensource.projectu.openapi.model.Project;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
