@@ -92,6 +92,7 @@
 							<apiPackage>com.opensource.projectu.openapi.api</apiPackage>
 							<modelPackage>com.opensource.projectu.openapi.model</modelPackage>
 							<configOptions>
+								<additionalModelTypeAnnotations>@lombok.Builder</additionalModelTypeAnnotations>
 								<interfaceOnly>true</interfaceOnly>
 							</configOptions>
 						</configuration>
