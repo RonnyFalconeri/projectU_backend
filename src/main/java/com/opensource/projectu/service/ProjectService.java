@@ -1,12 +1,11 @@
 package com.opensource.projectu.service;
 
-import com.opensource.projectu.exception.NotFoundException;
+import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +17,7 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         return projectRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Project with id "+ id +" not found."));
+                .orElseThrow(() -> new ProjectNotFoundException(id));
     }
 
     public List<Project> getAllProjects() {
@@ -26,7 +25,7 @@ public class ProjectService {
     }
 
     public Project createProject(Project project) {
-        project.setId(generateUniqueId());
+        project.id(generateUniqueId());
         return projectRepository.save(project);
     }
 
@@ -41,11 +40,10 @@ public class ProjectService {
     @Transactional
     public Project updateProject(String id, Project updatedProject) {
         var currentProject = projectRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Project with id "+ id +" not found."));
+                .orElseThrow(() -> new ProjectNotFoundException(id));
 
         // TODO: validate each property
-        currentProject
-                .title(updatedProject.getTitle())
+        currentProject.title(updatedProject.getTitle())
                 .description(updatedProject.getDescription())
                 .tasks(updatedProject.getTasks())
                 .state(updatedProject.getState())
@@ -61,7 +59,7 @@ public class ProjectService {
 
     public void deleteProject(String id) {
         if(!projectRepository.existsById(id)) {
-            throw new NotFoundException("Project with id "+ id +" not found.");
+            throw new ProjectNotFoundException(id);
         }
         projectRepository.deleteById(id);
     }
