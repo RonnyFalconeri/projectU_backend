@@ -32,8 +32,8 @@ public class ProjectService {
         var currentProject = projectRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Project with id "+ id +" not found."));
 
-        var project = copyProjectProperties(newProject, currentProject);
-        return projectRepository.save(project);
+        var updatedProject = copyProjectProperties(newProject, currentProject);
+        return projectRepository.save(updatedProject);
     }
 
     private Project copyProjectProperties(Project newProject, Project currentProject) {
