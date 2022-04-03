@@ -78,7 +78,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Project'
 
-    post:
+    put:
       tags:
         - project
       summary: Updates a project
@@ -138,9 +138,7 @@ components:
     Project:
       type: object
       required:
-        - id
         - title
-        - tasks
         - state
         - complexity
         - createdAt
@@ -194,7 +192,6 @@ components:
     Task:
       type: object
       required:
-        - id
         - title
         - done
       properties:
