@@ -15,13 +15,13 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
 
+    public List<Project> getAllProjects() {
+        return projectRepository.findAll();
+    }
+
     public Project getProjectById(String id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException(id));
-    }
-
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll();
     }
 
     public Project createProject(Project project) {
@@ -39,8 +39,7 @@ public class ProjectService {
 
     @Transactional
     public Project updateProject(String id, Project updatedProject) {
-        var currentProject = projectRepository.findById(id)
-                .orElseThrow(() -> new ProjectNotFoundException(id));
+        var currentProject = getProjectById(id);
 
         // TODO: validate each property
         currentProject.title(updatedProject.getTitle())
