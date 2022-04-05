@@ -31,10 +31,10 @@ public class ProjectService {
 
     private String generateUniqueId() {
         var id = UUID.randomUUID().toString();
-        if(!projectRepository.existsById(id)) {
-            return id;
+        if(projectRepository.existsById(id)) {
+            return generateUniqueId();
         }
-        return generateUniqueId();
+        return id;
     }
 
     @Transactional
@@ -56,9 +56,9 @@ public class ProjectService {
     }
 
     public void deleteProject(String id) {
-        if(!projectRepository.existsById(id)) {
-            throw new ProjectNotFoundException(id);
+        if(projectRepository.existsById(id)) {
+            projectRepository.deleteById(id);
         }
-        projectRepository.deleteById(id);
+        throw new ProjectNotFoundException(id);
     }
 }

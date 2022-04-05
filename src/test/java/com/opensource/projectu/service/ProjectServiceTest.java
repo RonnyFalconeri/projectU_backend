@@ -10,16 +10,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -38,7 +36,7 @@ class ProjectServiceTest {
     void getAllProjectsWithSuccess() {
         var mockProjects = buildMockProjects();
 
-        Mockito.when(projectRepository.findAll())
+        when(projectRepository.findAll())
                 .thenReturn(mockProjects);
 
         var returnedProjects = projectService.getAllProjects();
@@ -51,6 +49,121 @@ class ProjectServiceTest {
 
     private int generateRandomInteger(int min, int max) {
         return min + (int)(Math.random() * ((max - min) + 1));
+    }
+
+    @Test
+    void getProjectByIdWithSuccess() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        var returnedProject = projectService.getProjectById(mockProject.getId());
+
+        assertThat(returnedProject).isEqualTo(mockProject);
+    }
+
+    @Test
+    void getProjectByIdShouldThrowExceptionWhenProjectNotFound() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.empty());
+
+        var thrown = catchThrowable(
+                () -> projectService.getProjectById(mockProject.getId()));
+
+        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+    }
+
+    @Test
+    void createProjectShouldReturnProjectWhenSuccessful() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.createProject(mockProject);
+
+        assertThat(returnedProject).isEqualTo(mockProject);
+    }
+
+    @Test
+    void updateProjectShouldReturnProjectWhenSuccessful() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject);
+
+        assertThat(returnedProject).isEqualTo(mockProject);
+    }
+
+    @Test
+    void updateProjectShouldThrowExceptionWhenProjectNotFound() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.empty());
+
+        var thrown = catchThrowable(
+                () -> projectService.updateProject(mockProject.getId(), mockProject));
+
+        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+    }
+
+    @Test
+    void deleteProjectShouldThrowExceptionWhenProjectNotFound() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.existsById(mockProject.getId()))
+                .thenReturn(false);
+
+        var thrown = catchThrowable(
+                () -> projectService.deleteProject(mockProject.getId()));
+
+        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+    }
+
+    private Project buildMockProject() {
+        return Project.builder()
+                .id("1")
+                .title("title1")
+                .description("description1")
+                .tasks(Arrays.asList(
+                        Task.builder()
+                                .id("1")
+                                .title("task1")
+                                .description("task description1")
+                                .done(false)
+                                .estimatedDurationInHours(1)
+                                .build(),
+                        Task.builder()
+                                .id("2")
+                                .title("task2")
+                                .description("task description2")
+                                .done(false)
+                                .estimatedDurationInHours(2)
+                                .build(),
+                        Task.builder()
+                                .id("1")
+                                .title("task1")
+                                .description("task description1")
+                                .done(false)
+                                .estimatedDurationInHours(3)
+                                .build()
+                ))
+                .state(State.INITIATED)
+                .complexity(Complexity.EASY)
+                .estimatedDurationInHours(10)
+                .expectedResult("1 successful unit test")
+                .createdAt("01.01.2022")
+                .startedAt("01.01.2022")
+                .build();
     }
 
     private List<Project> buildMockProjects() {
@@ -129,69 +242,4 @@ class ProjectServiceTest {
                         .build()
         ));
     }
-
-    @Test
-    void getProjectByIdWithSuccess() {
-        var mockProject = buildMockProject();
-
-        Mockito.when(projectRepository.findById(mockProject.getId()))
-                .thenReturn(Optional.of(mockProject));
-
-        var returnedProject = projectService.getProjectById(mockProject.getId());
-
-        assertThat(returnedProject).isEqualTo(mockProject);
-    }
-
-    @Test
-    void getProjectByIdWithProjectNotFound() {
-        var mockProject = buildMockProject();
-
-        Mockito.when(projectRepository.findById(mockProject.getId()))
-                .thenReturn(Optional.empty());
-
-        Throwable thrown = catchThrowable(
-                () -> projectService.getProjectById(mockProject.getId()));
-
-        assertThat(thrown)
-                .isInstanceOf(ProjectNotFoundException.class)
-                .hasMessageContaining("Project with id "+ mockProject.getId() +" not found.");
-    }
-
-    private Project buildMockProject() {
-        return Project.builder()
-                .id("1")
-                .title("title1")
-                .description("description1")
-                .tasks(Arrays.asList(
-                        Task.builder()
-                                .id("1")
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(1)
-                                .build(),
-                        Task.builder()
-                                .id("2")
-                                .title("task2")
-                                .description("task description2")
-                                .done(false)
-                                .estimatedDurationInHours(2)
-                                .build(),
-                        Task.builder()
-                                .id("1")
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(3)
-                                .build()
-                ))
-                .state(State.INITIATED)
-                .complexity(Complexity.EASY)
-                .estimatedDurationInHours(10)
-                .expectedResult("1 successful unit test")
-                .createdAt("01.01.2022")
-                .startedAt("01.01.2022")
-                .build();
-    }
-
 }
