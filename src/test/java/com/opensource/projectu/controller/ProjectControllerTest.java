@@ -40,200 +40,37 @@ class ProjectControllerTest {
 
     @Test
     void getAllProjectsWithSuccess() throws Exception {
-        var projects = buildTestProjects();
+        var mockProjects = buildMockProjects();
+        var mockProject = mockProjects.get(2);
 
         Mockito.when(projectService.getAllProjects())
-                .thenReturn(projects);
+                .thenReturn(mockProjects);
 
         var request = MockMvcRequestBuilders
                 .get("/projects")
                 .contentType(MediaType.APPLICATION_JSON);
 
-        var project3 = projects.get(2);
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(projects.size())))
-                .andExpect(jsonPath("$[2].id", is(project3.getId())))
-                .andExpect(jsonPath("$[2].title", is(project3.getTitle())))
-                .andExpect(jsonPath("$[2].description", is(project3.getDescription())))
-                .andExpect(jsonPath("$[2].tasks[1].title", is(project3.getTasks().get(1).getTitle())))
-                .andExpect(jsonPath("$[2].state", is(project3.getState().toString())))
-                .andExpect(jsonPath("$[2].complexity", is(project3.getComplexity().toString())))
-                .andExpect(jsonPath("$[2].estimatedDurationInHours", is(project3.getEstimatedDurationInHours())));
+                .andExpect(jsonPath("$",
+                        hasSize(mockProjects.size())))
+                .andExpect(jsonPath("$[2].id",
+                        is(mockProject.getId())))
+                .andExpect(jsonPath("$[2].title",
+                        is(mockProject.getTitle())))
+                .andExpect(jsonPath("$[2].description",
+                        is(mockProject.getDescription())))
+                .andExpect(jsonPath("$[2].tasks[1].title",
+                        is(mockProject.getTasks().get(1).getTitle())))
+                .andExpect(jsonPath("$[2].state",
+                        is(mockProject.getState().toString())))
+                .andExpect(jsonPath("$[2].complexity",
+                        is(mockProject.getComplexity().toString())))
+                .andExpect(jsonPath("$[2].estimatedDurationInHours",
+                        is(mockProject.getEstimatedDurationInHours())));
     }
 
-    @Test
-    void getProjectByIdWithSuccess() throws Exception {
-        var project = buildTestProject();
-
-        Mockito.when(projectService.getProjectById(project.getId()))
-                .thenReturn(project);
-
-        var request = MockMvcRequestBuilders
-                .get("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.title", is(project.getTitle())));
-    }
-
-    @Test
-    void getProjectByIdWithProjectNotFound() throws Exception {
-        var project = buildTestProject();
-
-        Mockito.when(projectService.getProjectById(project.getId()))
-                .thenThrow(new ProjectNotFoundException(project.getId()));
-
-        var request = MockMvcRequestBuilders
-                .get("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(project));
-
-        mockMvc.perform(request)
-                .andExpect(status().isNotFound())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
-                .andExpect(result ->
-                        assertEquals("Project with id "+ project.getId() +" not found.", result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void createProjectWithSuccess() throws Exception {
-        var project = buildTestProject();
-
-        Mockito.when(projectService.createProject(project))
-                .thenReturn(project);
-
-        var request = MockMvcRequestBuilders
-                .post("/projects")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(project));
-
-        mockMvc.perform(request)
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.description", is(project.getDescription())));
-    }
-
-    @Test
-    void updateProjectWithSuccess() throws Exception {
-        var project = buildTestProject();
-
-        Mockito.when(projectService.getProjectById(project.getId()))
-                .thenReturn(project);
-
-        Mockito.when(projectService.updateProject(project.getId(), project))
-                .thenReturn(project);
-
-        var request = MockMvcRequestBuilders
-                .put("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(project));
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.title", is(project.getTitle())))
-                .andExpect(jsonPath("$.tasks[0].title", is(project.getTasks().get(0).getTitle())));
-    }
-
-    @Test
-    void updateProjectWithProjectNotFound() throws Exception {
-        var project = buildTestProject();
-
-        Mockito.when(projectService.updateProject(project.getId(), project))
-                .thenThrow(new ProjectNotFoundException(project.getId()));
-
-        var request = MockMvcRequestBuilders
-                .put("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(project));
-
-        mockMvc.perform(request)
-                .andExpect(status().isNotFound())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
-                .andExpect(result ->
-                        assertEquals("Project with id "+ project.getId() +" not found.", result.getResolvedException().getMessage()));
-    }
-
-    @Test
-    void deleteProjectWithSuccess() throws Exception {
-        var project = buildTestProject();
-
-        doNothing().when(projectService).deleteProject(project.getId());
-
-        var request = MockMvcRequestBuilders
-                .delete("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void deleteProjectWithProjectNotFound() throws Exception {
-        var project = buildTestProject();
-
-        doThrow(new ProjectNotFoundException(project.getId()))
-                .when(projectService).deleteProject(project.getId());
-
-        var request = MockMvcRequestBuilders
-                .delete("/projects/" + project.getId())
-                .contentType(MediaType.APPLICATION_JSON);
-
-        mockMvc.perform(request)
-                .andExpect(status().isNotFound())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
-                .andExpect(result ->
-                        assertEquals("Project with id "+ project.getId() +" not found.", result.getResolvedException().getMessage()));
-    }
-
-    private Project buildTestProject() {
-        return Project.builder()
-                .id("1")
-                .title("title1")
-                .description("description1")
-                .tasks(Arrays.asList(
-                        Task.builder()
-                                .id("1")
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(1)
-                                .build(),
-                        Task.builder()
-                                .id("2")
-                                .title("task2")
-                                .description("task description2")
-                                .done(false)
-                                .estimatedDurationInHours(2)
-                                .build(),
-                        Task.builder()
-                                .id("1")
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(3)
-                                .build()
-                ))
-                .state(State.INITIATED)
-                .complexity(Complexity.EASY)
-                .estimatedDurationInHours(10)
-                .expectedResult("1 successful unit test")
-                .createdAt("01.01.2022")
-                .startedAt("01.01.2022")
-                .build();
-    }
-
-    private List<Project> buildTestProjects() {
+    private List<Project> buildMockProjects() {
         return new ArrayList<>(Arrays.asList(
                 Project.builder()
                         .id("1")
@@ -308,5 +145,176 @@ class ProjectControllerTest {
                         .startedAt("03.01.2022")
                         .build()
         ));
+    }
+
+    @Test
+    void getProjectByIdWithSuccess() throws Exception {
+        var mockProject = buildMockProject();
+
+        Mockito.when(projectService.getProjectById(mockProject.getId()))
+                .thenReturn(mockProject);
+
+        var request = MockMvcRequestBuilders
+                .get("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.title", is(mockProject.getTitle())));
+    }
+
+    @Test
+    void getProjectByIdWithProjectNotFound() throws Exception {
+        var mockProject = buildMockProject();
+
+        Mockito.when(projectService.getProjectById(mockProject.getId()))
+                .thenThrow(new ProjectNotFoundException(mockProject.getId()));
+
+        var request = MockMvcRequestBuilders
+                .get("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
+                .andExpect(result ->
+                        assertEquals("Project with id "+ mockProject.getId() +" not found.", result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void createProjectWithSuccess() throws Exception {
+        var mockProject = buildMockProject();
+
+        Mockito.when(projectService.createProject(mockProject))
+                .thenReturn(mockProject);
+
+        var request = MockMvcRequestBuilders
+                .post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.description", is(mockProject.getDescription())));
+    }
+
+    @Test
+    void updateProjectWithSuccess() throws Exception {
+        var mockProject = buildMockProject();
+
+        Mockito.when(projectService.getProjectById(mockProject.getId()))
+                .thenReturn(mockProject);
+
+        Mockito.when(projectService.updateProject(mockProject.getId(), mockProject))
+                .thenReturn(mockProject);
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
+                .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
+    }
+
+    @Test
+    void updateProjectWithProjectNotFound() throws Exception {
+        var mockProject = buildMockProject();
+
+        Mockito.when(projectService.updateProject(mockProject.getId(), mockProject))
+                .thenThrow(new ProjectNotFoundException(mockProject.getId()));
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
+                .andExpect(result ->
+                        assertEquals("Project with id "+ mockProject.getId() +" not found.", result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void deleteProjectWithSuccess() throws Exception {
+        var mockProject = buildMockProject();
+
+        doNothing().when(projectService).deleteProject(mockProject.getId());
+
+        var request = MockMvcRequestBuilders
+                .delete("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void deleteProjectWithProjectNotFound() throws Exception {
+        var mockProject = buildMockProject();
+
+        doThrow(new ProjectNotFoundException(mockProject.getId()))
+                .when(projectService).deleteProject(mockProject.getId());
+
+        var request = MockMvcRequestBuilders
+                .delete("/projects/" + mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException))
+                .andExpect(result ->
+                        assertEquals("Project with id "+ mockProject.getId() +" not found.", result.getResolvedException().getMessage()));
+    }
+
+    private Project buildMockProject() {
+        return Project.builder()
+                .id("1")
+                .title("title1")
+                .description("description1")
+                .tasks(Arrays.asList(
+                        Task.builder()
+                                .id("1")
+                                .title("task1")
+                                .description("task description1")
+                                .done(false)
+                                .estimatedDurationInHours(1)
+                                .build(),
+                        Task.builder()
+                                .id("2")
+                                .title("task2")
+                                .description("task description2")
+                                .done(false)
+                                .estimatedDurationInHours(2)
+                                .build(),
+                        Task.builder()
+                                .id("1")
+                                .title("task1")
+                                .description("task description1")
+                                .done(false)
+                                .estimatedDurationInHours(3)
+                                .build()
+                ))
+                .state(State.INITIATED)
+                .complexity(Complexity.EASY)
+                .estimatedDurationInHours(10)
+                .expectedResult("1 successful unit test")
+                .createdAt("01.01.2022")
+                .startedAt("01.01.2022")
+                .build();
     }
 }
