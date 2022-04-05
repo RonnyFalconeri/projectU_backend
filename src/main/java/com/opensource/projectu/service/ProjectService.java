@@ -41,7 +41,6 @@ public class ProjectService {
     public Project updateProject(String id, Project updatedProject) {
         var currentProject = getProjectById(id);
 
-        // TODO: validate each property
         currentProject.title(updatedProject.getTitle())
                 .description(updatedProject.getDescription())
                 .tasks(updatedProject.getTasks())
