@@ -11,12 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -70,10 +68,9 @@ class ProjectServiceTest {
         when(projectRepository.findById(mockProject.getId()))
                 .thenReturn(Optional.empty());
 
-        var thrown = catchThrowable(
-                () -> projectService.getProjectById(mockProject.getId()));
-
-        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+        assertThatThrownBy(
+                () -> projectService.getProjectById(mockProject.getId()))
+                .isInstanceOf(ProjectNotFoundException.class);
     }
 
     @Test
@@ -104,16 +101,18 @@ class ProjectServiceTest {
     }
 
     @Test
-    void updateProjectShouldThrowExceptionWhenProjectNotFound() {
+    void updateProjectShouldReturnProjectWhenProjectNotFound() {
         var mockProject = buildMockProject();
 
         when(projectRepository.findById(mockProject.getId()))
                 .thenReturn(Optional.empty());
 
-        var thrown = catchThrowable(
-                () -> projectService.updateProject(mockProject.getId(), mockProject));
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
 
-        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject);
+
+        assertThat(returnedProject).isEqualTo(mockProject);
     }
 
     @Test
@@ -123,34 +122,33 @@ class ProjectServiceTest {
         when(projectRepository.existsById(mockProject.getId()))
                 .thenReturn(false);
 
-        var thrown = catchThrowable(
-                () -> projectService.deleteProject(mockProject.getId()));
-
-        assertThat(thrown).isInstanceOf(ProjectNotFoundException.class);
+        assertThatThrownBy(
+                () -> projectService.deleteProject(mockProject.getId()))
+                .isInstanceOf(ProjectNotFoundException.class);
     }
 
     private Project buildMockProject() {
         return Project.builder()
-                .id("1")
+                .id(UUID.randomUUID())
                 .title("title1")
                 .description("description1")
                 .tasks(Arrays.asList(
                         Task.builder()
-                                .id("1")
+                                .id(UUID.randomUUID())
                                 .title("task1")
                                 .description("task description1")
                                 .done(false)
                                 .estimatedDurationInHours(1)
                                 .build(),
                         Task.builder()
-                                .id("2")
+                                .id(UUID.randomUUID())
                                 .title("task2")
                                 .description("task description2")
                                 .done(false)
                                 .estimatedDurationInHours(2)
                                 .build(),
                         Task.builder()
-                                .id("1")
+                                .id(UUID.randomUUID())
                                 .title("task1")
                                 .description("task description1")
                                 .done(false)
@@ -169,26 +167,26 @@ class ProjectServiceTest {
     private List<Project> buildMockProjects() {
         return new ArrayList<>(Arrays.asList(
                 Project.builder()
-                        .id("1")
+                        .id(UUID.randomUUID())
                         .title("title1")
                         .description("description1")
                         .tasks(Arrays.asList(
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
                                         .estimatedDurationInHours(1)
                                         .build(),
                                 Task.builder()
-                                        .id("2")
+                                        .id(UUID.randomUUID())
                                         .title("task2")
                                         .description("task description2")
                                         .done(false)
                                         .estimatedDurationInHours(2)
                                         .build(),
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
@@ -203,7 +201,7 @@ class ProjectServiceTest {
                         .startedAt("01.01.2022")
                         .build(),
                 Project.builder()
-                        .id("2")
+                        .id(UUID.randomUUID())
                         .title("title2")
                         .description("description2")
                         .state(State.HALTED)
@@ -214,19 +212,19 @@ class ProjectServiceTest {
                         .startedAt("02.01.2022")
                         .build(),
                 Project.builder()
-                        .id("3")
+                        .id(UUID.randomUUID())
                         .title("title3")
                         .description("description3")
                         .tasks(Arrays.asList(
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
                                         .estimatedDurationInHours(1)
                                         .build(),
                                 Task.builder()
-                                        .id("2")
+                                        .id(UUID.randomUUID())
                                         .title("task2")
                                         .description("task description2")
                                         .done(false)

@@ -19,7 +19,7 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public Project getProjectById(String id) {
+    public Project getProjectById(UUID id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException(id));
     }
@@ -29,8 +29,8 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    private String generateUniqueId() {
-        var id = UUID.randomUUID().toString();
+    private UUID generateUniqueId() {
+        var id = UUID.randomUUID();
         if(projectRepository.existsById(id)) {
             return generateUniqueId();
         }
@@ -38,24 +38,28 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project updateProject(String id, Project updatedProject) {
-        var currentProject = getProjectById(id);
-
-        currentProject.title(updatedProject.getTitle())
-                .description(updatedProject.getDescription())
-                .tasks(updatedProject.getTasks())
-                .state(updatedProject.getState())
-                .complexity(updatedProject.getComplexity())
-                .estimatedDurationInHours(updatedProject.getEstimatedDurationInHours())
-                .expectedResult(updatedProject.getExpectedResult())
-                .actualResult(updatedProject.getActualResult())
-                .startedAt(updatedProject.getStartedAt())
-                .finishedAt(updatedProject.getFinishedAt());
-
-        return projectRepository.save(currentProject);
+    public Project updateProject(UUID id, Project updatedProject) {
+        return projectRepository.findById(id)
+                .map(currentProject -> {
+                    currentProject.title(updatedProject.getTitle())
+                        .description(updatedProject.getDescription())
+                        .tasks(updatedProject.getTasks())
+                        .state(updatedProject.getState())
+                        .complexity(updatedProject.getComplexity())
+                        .estimatedDurationInHours(updatedProject.getEstimatedDurationInHours())
+                        .expectedResult(updatedProject.getExpectedResult())
+                        .actualResult(updatedProject.getActualResult())
+                        .startedAt(updatedProject.getStartedAt())
+                        .finishedAt(updatedProject.getFinishedAt());
+                    return projectRepository.save(currentProject);
+                })
+                .orElseGet(() -> {
+                    updatedProject.id(id);
+                    return projectRepository.save(updatedProject);
+                });
     }
 
-    public void deleteProject(String id) {
+    public void deleteProject(UUID id) {
         if(projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
         }

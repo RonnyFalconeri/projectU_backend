@@ -70,6 +70,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: successful operation
@@ -90,6 +91,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
         content:
           application/json:
@@ -129,6 +131,7 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '204':
           description: Project successfully deleted
@@ -145,6 +148,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         title:
           type: string
         description:
@@ -170,11 +174,11 @@ components:
         finishedAt:
           type: string
       example:
-        id: 1234
+        id: 2ebeba4e-67a0-44f9-baed-2ebf6c903648
         title: Learn to design an API
         description: A project for learning and applying REST API practises
         tasks:
-          - id: 123
+          - id: 1adfb959-5152-4cd7-abae-00ea07fa6056
             title: Learn OpenApi
             description: A task for learning the OpenApi specification
             done: false
@@ -197,6 +201,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
         title:
           type: string
         description:
@@ -208,7 +213,7 @@ components:
         result:
           type: string
       example:
-        id: 123
+        id: 1adfb959-5152-4cd7-abae-00ea07fa6056
         title: Learn OpenApi
         description: A task for learning the OpenApi specification
         done: false
@@ -217,7 +222,6 @@ components:
 
     State:
       type: string
-      nullable: false
       enum:
         - INITIATED
         - IN_PROGRESS
@@ -226,7 +230,6 @@ components:
 
     Complexity:
       type: string
-      nullable: false
       enum:
         - EASY
         - MEDIUM

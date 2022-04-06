@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class ProjectController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<Project> getProjectById(String id) {
+    public ResponseEntity<Project> getProjectById(UUID id) {
         return new ResponseEntity<>(projectService.getProjectById(id), HttpStatus.OK);
     }
 
@@ -31,13 +32,13 @@ public class ProjectController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<Project> updateProject(String id, Project project) {
-        return new ResponseEntity<>(projectService.updateProject(id, project), HttpStatus.OK);
+    public ResponseEntity<Project> updateProject(UUID id, Project project) {
+        return new ResponseEntity<>(projectService.updateProject(id, project), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<Void> deleteProject(String id) {
+    public ResponseEntity<Void> deleteProject(UUID id) {
         projectService.deleteProject(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

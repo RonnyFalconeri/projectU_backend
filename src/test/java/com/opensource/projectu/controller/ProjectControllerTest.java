@@ -17,6 +17,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,7 +37,7 @@ class ProjectControllerTest {
     ProjectService projectService;
 
     @Test
-    void getAllProjectsWithSuccess() throws Exception {
+    void getAllProjectsShouldReturnAllProjectsWith200WhenSuccess() throws Exception {
         var mockProjects = buildMockProjects();
         var mockProject = mockProjects.get(2);
 
@@ -51,7 +53,7 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$",
                         hasSize(mockProjects.size())))
                 .andExpect(jsonPath("$[2].id",
-                        is(mockProject.getId())))
+                        is(mockProject.getId().toString())))
                 .andExpect(jsonPath("$[2].title",
                         is(mockProject.getTitle())))
                 .andExpect(jsonPath("$[2].description",
@@ -67,7 +69,7 @@ class ProjectControllerTest {
     }
 
     @Test
-    void getProjectByIdWithSuccess() throws Exception {
+    void getProjectByIdShouldReturnProjectWith200WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
         when(projectService.getProjectById(mockProject.getId()))
@@ -84,7 +86,7 @@ class ProjectControllerTest {
     }
 
     @Test
-    void getProjectByIdShouldReturnErrorStatusWhenProjectNotFound() throws Exception {
+    void getProjectByIdShouldReturnExceptionWith404WhenProjectNotFound() throws Exception {
         var mockProject = buildMockProject();
 
         when(projectService.getProjectById(mockProject.getId()))
@@ -103,7 +105,7 @@ class ProjectControllerTest {
     }
 
     @Test
-    void createProjectWithSuccess() throws Exception {
+    void createProjectShouldReturnProjectWith201WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
         when(projectService.createProject(mockProject))
@@ -122,11 +124,8 @@ class ProjectControllerTest {
     }
 
     @Test
-    void updateProjectWithSuccess() throws Exception {
+    void updateProjectShouldReturnProjectWith201WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
-
-        when(projectService.getProjectById(mockProject.getId()))
-                .thenReturn(mockProject);
 
         when(projectService.updateProject(mockProject.getId(), mockProject))
                 .thenReturn(mockProject);
@@ -138,33 +137,14 @@ class ProjectControllerTest {
                 .content(mapper.writeValueAsString(mockProject));
 
         mockMvc.perform(request)
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$", notNullValue()))
                 .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
                 .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
     }
 
     @Test
-    void updateProjectShouldReturnErrorStatusWhenProjectNotFound() throws Exception {
-        var mockProject = buildMockProject();
-
-        when(projectService.updateProject(mockProject.getId(), mockProject))
-                .thenThrow(new ProjectNotFoundException(mockProject.getId()));
-
-        var request = MockMvcRequestBuilders
-                .put("/projects/" + mockProject.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockProject));
-
-        mockMvc.perform(request)
-                .andExpect(status().isNotFound())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException));
-    }
-
-    @Test
-    void deleteProjectWithSuccess() throws Exception {
+    void deleteProjectReturns204WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
         doNothing().when(projectService).deleteProject(mockProject.getId());
@@ -174,11 +154,11 @@ class ProjectControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
     }
 
     @Test
-    void deleteProjectShouldReturnErrorStatusWhenProjectNotFound() throws Exception {
+    void deleteProjectShouldReturnExceptionWith404WhenProjectNotFound() throws Exception {
         var mockProject = buildMockProject();
 
         doThrow(new ProjectNotFoundException(mockProject.getId()))
@@ -196,26 +176,26 @@ class ProjectControllerTest {
 
     private Project buildMockProject() {
         return Project.builder()
-                .id("1")
+                .id(UUID.randomUUID())
                 .title("title1")
                 .description("description1")
                 .tasks(Arrays.asList(
                         Task.builder()
-                                .id("1")
+                                .id(UUID.randomUUID())
                                 .title("task1")
                                 .description("task description1")
                                 .done(false)
                                 .estimatedDurationInHours(1)
                                 .build(),
                         Task.builder()
-                                .id("2")
+                                .id(UUID.randomUUID())
                                 .title("task2")
                                 .description("task description2")
                                 .done(false)
                                 .estimatedDurationInHours(2)
                                 .build(),
                         Task.builder()
-                                .id("1")
+                                .id(UUID.randomUUID())
                                 .title("task1")
                                 .description("task description1")
                                 .done(false)
@@ -234,26 +214,26 @@ class ProjectControllerTest {
     private List<Project> buildMockProjects() {
         return new ArrayList<>(Arrays.asList(
                 Project.builder()
-                        .id("1")
+                        .id(UUID.randomUUID())
                         .title("title1")
                         .description("description1")
                         .tasks(Arrays.asList(
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
                                         .estimatedDurationInHours(1)
                                         .build(),
                                 Task.builder()
-                                        .id("2")
+                                        .id(UUID.randomUUID())
                                         .title("task2")
                                         .description("task description2")
                                         .done(false)
                                         .estimatedDurationInHours(2)
                                         .build(),
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
@@ -268,7 +248,7 @@ class ProjectControllerTest {
                         .startedAt("01.01.2022")
                         .build(),
                 Project.builder()
-                        .id("2")
+                        .id(UUID.randomUUID())
                         .title("title2")
                         .description("description2")
                         .state(State.HALTED)
@@ -279,19 +259,19 @@ class ProjectControllerTest {
                         .startedAt("02.01.2022")
                         .build(),
                 Project.builder()
-                        .id("3")
+                        .id(UUID.randomUUID())
                         .title("title3")
                         .description("description3")
                         .tasks(Arrays.asList(
                                 Task.builder()
-                                        .id("1")
+                                        .id(UUID.randomUUID())
                                         .title("task1")
                                         .description("task description1")
                                         .done(false)
                                         .estimatedDurationInHours(1)
                                         .build(),
                                 Task.builder()
-                                        .id("2")
+                                        .id(UUID.randomUUID())
                                         .title("task2")
                                         .description("task description2")
                                         .done(false)
