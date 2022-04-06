@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.ArrayList;
@@ -76,7 +78,7 @@ class ProjectControllerTest {
                 .thenReturn(mockProject);
 
         var request = MockMvcRequestBuilders
-                .get("/projects/" + mockProject.getId())
+                .get("/projects/{id}", mockProject.getId())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -93,10 +95,9 @@ class ProjectControllerTest {
                 .thenThrow(new ProjectNotFoundException(mockProject.getId()));
 
         var request = MockMvcRequestBuilders
-                .get("/projects/" + mockProject.getId())
+                .get("/projects/{id}", mockProject.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(mockProject));
+                .accept(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())
@@ -124,14 +125,34 @@ class ProjectControllerTest {
     }
 
     @Test
-    void updateProjectShouldReturnProjectWith201WhenSuccess() throws Exception {
+    void updateProjectShouldReturnProjectWith200WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
         when(projectService.updateProject(mockProject.getId(), mockProject))
-                .thenReturn(mockProject);
+                .thenReturn(new ResponseEntity<>(mockProject, HttpStatus.OK));
 
         var request = MockMvcRequestBuilders
-                .put("/projects/" + mockProject.getId())
+                .put("/projects/{id}", mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()))
+                .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
+                .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
+    }
+
+    @Test
+    void updateProjectShouldReturnProjectWith201WhenProjectNotFound() throws Exception {
+        var mockProject = buildMockProject();
+
+        when(projectService.updateProject(mockProject.getId(), mockProject))
+                .thenReturn(new ResponseEntity<>(mockProject, HttpStatus.CREATED));
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/{id}", mockProject.getId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(mockProject));
@@ -144,13 +165,13 @@ class ProjectControllerTest {
     }
 
     @Test
-    void deleteProjectReturns204WhenSuccess() throws Exception {
+    void deleteProjectShouldReturn204WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
         doNothing().when(projectService).deleteProject(mockProject.getId());
 
         var request = MockMvcRequestBuilders
-                .delete("/projects/" + mockProject.getId())
+                .delete("/projects/{id}", mockProject.getId())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)
@@ -165,7 +186,7 @@ class ProjectControllerTest {
                 .when(projectService).deleteProject(mockProject.getId());
 
         var request = MockMvcRequestBuilders
-                .delete("/projects/" + mockProject.getId())
+                .delete("/projects/{id}", mockProject.getId())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)

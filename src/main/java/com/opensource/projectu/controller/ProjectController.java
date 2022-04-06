@@ -33,7 +33,7 @@ public class ProjectController implements ProjectsApi {
 
     @Override
     public ResponseEntity<Project> updateProject(UUID id, Project project) {
-        return new ResponseEntity<>(projectService.updateProject(id, project), HttpStatus.CREATED);
+        return projectService.updateProject(id, project);
     }
 
     @Override

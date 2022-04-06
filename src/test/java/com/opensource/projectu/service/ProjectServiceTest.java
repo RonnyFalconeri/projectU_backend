@@ -95,7 +95,7 @@ class ProjectServiceTest {
         when(projectRepository.save(mockProject))
                 .thenReturn(mockProject);
 
-        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject);
+        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject).getBody();
 
         assertThat(returnedProject).isEqualTo(mockProject);
     }
@@ -110,7 +110,7 @@ class ProjectServiceTest {
         when(projectRepository.save(mockProject))
                 .thenReturn(mockProject);
 
-        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject);
+        var returnedProject = projectService.updateProject(mockProject.getId(), mockProject).getBody();
 
         assertThat(returnedProject).isEqualTo(mockProject);
     }

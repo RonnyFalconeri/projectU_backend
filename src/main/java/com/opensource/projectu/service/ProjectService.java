@@ -4,6 +4,8 @@ import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -38,25 +40,22 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project updateProject(UUID id, Project updatedProject) {
+    public ResponseEntity<Project> updateProject(UUID id, Project updatedProject) {
         return projectRepository.findById(id)
-                .map(currentProject -> {
-                    currentProject.title(updatedProject.getTitle())
-                        .description(updatedProject.getDescription())
-                        .tasks(updatedProject.getTasks())
-                        .state(updatedProject.getState())
-                        .complexity(updatedProject.getComplexity())
-                        .estimatedDurationInHours(updatedProject.getEstimatedDurationInHours())
-                        .expectedResult(updatedProject.getExpectedResult())
-                        .actualResult(updatedProject.getActualResult())
-                        .startedAt(updatedProject.getStartedAt())
-                        .finishedAt(updatedProject.getFinishedAt());
-                    return projectRepository.save(currentProject);
-                })
-                .orElseGet(() -> {
-                    updatedProject.id(id);
-                    return projectRepository.save(updatedProject);
-                });
+                .map(project -> new ResponseEntity<>(projectRepository.save(
+                        project.title(updatedProject.getTitle())
+                            .description(updatedProject.getDescription())
+                            .tasks(updatedProject.getTasks())
+                            .state(updatedProject.getState())
+                            .complexity(updatedProject.getComplexity())
+                            .estimatedDurationInHours(updatedProject.getEstimatedDurationInHours())
+                            .expectedResult(updatedProject.getExpectedResult())
+                            .actualResult(updatedProject.getActualResult())
+                            .startedAt(updatedProject.getStartedAt())
+                            .finishedAt(updatedProject.getFinishedAt())),
+                        HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(projectRepository.save(updatedProject.id(id)),
+                                HttpStatus.CREATED));
     }
 
     public void deleteProject(UUID id) {
