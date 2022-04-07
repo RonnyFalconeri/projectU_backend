@@ -116,6 +116,18 @@ class ProjectServiceTest {
     }
 
     @Test
+    void deleteProjectShouldNotThrowExceptionWhenProjectFound() {
+        var mockProject = buildMockProject();
+
+        when(projectRepository.existsById(mockProject.getId()))
+                .thenReturn(true);
+        
+        assertThatCode(
+                () -> projectService.deleteProject(mockProject.getId()))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
     void deleteProjectShouldThrowExceptionWhenProjectNotFound() {
         var mockProject = buildMockProject();
 
@@ -159,7 +171,7 @@ class ProjectServiceTest {
                 .complexity(Complexity.EASY)
                 .estimatedDurationInHours(10)
                 .expectedResult("1 successful unit test")
-                .createdAt("01.01.2022")
+                .createdAt(1508484583267L)
                 .startedAt("01.01.2022")
                 .build();
     }
@@ -197,7 +209,7 @@ class ProjectServiceTest {
                         .complexity(Complexity.EASY)
                         .estimatedDurationInHours(10)
                         .expectedResult("1 successful unit test")
-                        .createdAt("01.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("01.01.2022")
                         .build(),
                 Project.builder()
@@ -208,7 +220,7 @@ class ProjectServiceTest {
                         .complexity(Complexity.MEDIUM)
                         .estimatedDurationInHours(20)
                         .expectedResult("2 successful unit test")
-                        .createdAt("02.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("02.01.2022")
                         .build(),
                 Project.builder()
@@ -235,7 +247,7 @@ class ProjectServiceTest {
                         .complexity(Complexity.DIFFICULT)
                         .estimatedDurationInHours(30)
                         .expectedResult("3 successful unit test")
-                        .createdAt("03.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("03.01.2022")
                         .build()
         ));

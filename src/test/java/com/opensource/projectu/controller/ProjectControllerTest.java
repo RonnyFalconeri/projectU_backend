@@ -125,6 +125,11 @@ class ProjectControllerTest {
     }
 
     @Test
+    void createProjectShouldReturnExceptionWith400WhenProjectIsInvalid() {
+        // TODO: mock incomplete project and try to create it
+    }
+
+    @Test
     void updateProjectShouldReturnProjectWith200WhenSuccess() throws Exception {
         var mockProject = buildMockProject();
 
@@ -162,6 +167,11 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$", notNullValue()))
                 .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
                 .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
+    }
+
+    @Test
+    void updateProjectShouldReturnExceptionWith400WhenProjectIsInvalid() {
+        // TODO: mock incomplete project and try to update it
     }
 
     @Test
@@ -227,7 +237,7 @@ class ProjectControllerTest {
                 .complexity(Complexity.EASY)
                 .estimatedDurationInHours(10)
                 .expectedResult("1 successful unit test")
-                .createdAt("01.01.2022")
+                .createdAt(1508484583267L)
                 .startedAt("01.01.2022")
                 .build();
     }
@@ -265,7 +275,7 @@ class ProjectControllerTest {
                         .complexity(Complexity.EASY)
                         .estimatedDurationInHours(10)
                         .expectedResult("1 successful unit test")
-                        .createdAt("01.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("01.01.2022")
                         .build(),
                 Project.builder()
@@ -276,7 +286,7 @@ class ProjectControllerTest {
                         .complexity(Complexity.MEDIUM)
                         .estimatedDurationInHours(20)
                         .expectedResult("2 successful unit test")
-                        .createdAt("02.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("02.01.2022")
                         .build(),
                 Project.builder()
@@ -303,7 +313,7 @@ class ProjectControllerTest {
                         .complexity(Complexity.DIFFICULT)
                         .estimatedDurationInHours(30)
                         .expectedResult("3 successful unit test")
-                        .createdAt("03.01.2022")
+                        .createdAt(1508484583267L)
                         .startedAt("03.01.2022")
                         .build()
         ));

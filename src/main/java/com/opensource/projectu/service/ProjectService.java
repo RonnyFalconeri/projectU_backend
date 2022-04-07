@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,7 +29,8 @@ public class ProjectService {
     }
 
     public Project createProject(Project project) {
-        project.id(generateUniqueId());
+        project.id(generateUniqueId())
+                .createdAt(getCurrentTimestamp());
         return projectRepository.save(project);
     }
 
@@ -37,6 +40,11 @@ public class ProjectService {
             return generateUniqueId();
         }
         return id;
+    }
+
+    private long getCurrentTimestamp() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.getTimeInMillis();
     }
 
     @Transactional
@@ -61,7 +69,8 @@ public class ProjectService {
     public void deleteProject(UUID id) {
         if(projectRepository.existsById(id)) {
             projectRepository.deleteById(id);
+        } else {
+            throw new ProjectNotFoundException(id);
         }
-        throw new ProjectNotFoundException(id);
     }
 }
