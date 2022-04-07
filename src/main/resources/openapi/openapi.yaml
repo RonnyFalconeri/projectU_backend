@@ -10,11 +10,11 @@ paths:
       tags:
         - project
       summary: Get all projects
-      description: Returns every Project
+      description: Returns a list containing every project.
       operationId: getAllProjects
       responses:
         '200':
-          description: Every project returned
+          description: A list containing every project is returned successfully.
           content:
             application/json:
               schema:
@@ -26,6 +26,9 @@ paths:
       tags:
         - project
       summary: Create new project
+      description: >
+        Creates a new project.
+        A unique ID for the project is automatically generated.
       operationId: createProject
       requestBody:
         description: Creates a new project
@@ -36,32 +39,18 @@ paths:
         required: true
       responses:
         '201':
-          description: Project created
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-            Content-Location:
-              schema:
-                type: string
-                format: uri
+          description: A new project was created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-          links:
-            getProjectById:
-              operationId: getProjectById
-              parameters:
-                id: $response.body#/id
 
   /projects/{id}:
     get:
       tags:
         - project
-      summary: Get project by id
-      description: Returns a single project
+      summary: Get project by ID
+      description: Returns a project with a specific ID.
       operationId: getProjectById
       parameters:
         - name: id
@@ -73,16 +62,22 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Project was found
+          description: A project with the specified ID is returned successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+        '404':
+          description: A project with the specified ID was not found.
 
     put:
       tags:
         - project
-      summary: Updates a project
+      summary: Update project
+      description: >
+        Updates a project with a specific ID. 
+        If no project with the specified ID was found, 
+        a new project with the specified ID will be created.
       operationId: updateProject
       parameters:
         - name: id
@@ -99,62 +94,37 @@ paths:
               $ref: '#/components/schemas/Project'
       responses:
         '200':
-          description: Project updated
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-            Content-Location:
-              schema:
-                type: string
-                format: uri
+          description: A project with the specified ID was updated successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-          links:
-            getProjectById:
-              operationId: getProjectById
-              parameters:
-                id: $response.body#/id
         '201':
-          description: Project created
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-            Content-Location:
-              schema:
-                type: string
-                format: uri
+          description: A project with the specified ID was created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-          links:
-            getProjectById:
-              operationId: getProjectById
-              parameters:
-                id: $response.body#/id
 
     delete:
       tags:
         - project
-      summary: Deletes a project
+      summary: Delete project by ID
+      description: Deletes a project with a specific ID.
       operationId: deleteProject
       parameters:
         - name: id
           in: path
-          description: Project id to delete
+          description: Project ID to delete
           required: true
           schema:
             type: string
             format: uuid
       responses:
         '204':
-          description: Project deleted
+          description: A project with the specified ID was deleted successfully.
+        '404':
+          description: A project with the specified ID was not found.
 
 components:
   schemas:
