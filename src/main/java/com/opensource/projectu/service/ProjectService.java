@@ -8,10 +8,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
+
+import static com.opensource.projectu.util.ProjectPersistenceUtil.generateUniqueId;
+import static com.opensource.projectu.util.ProjectPersistenceUtil.getCurrentTimestamp;
 
 @Service
 @AllArgsConstructor
@@ -29,22 +30,9 @@ public class ProjectService {
     }
 
     public Project createProject(Project project) {
-        project.id(generateUniqueId())
+        project.id(generateUniqueId(UUID.randomUUID(), projectRepository))
                 .createdAt(getCurrentTimestamp());
         return projectRepository.save(project);
-    }
-
-    private UUID generateUniqueId() {
-        var id = UUID.randomUUID();
-        if(projectRepository.existsById(id)) {
-            return generateUniqueId();
-        }
-        return id;
-    }
-
-    private long getCurrentTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        return calendar.getTimeInMillis();
     }
 
     @Transactional
