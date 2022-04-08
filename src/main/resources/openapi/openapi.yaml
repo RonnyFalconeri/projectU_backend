@@ -31,12 +31,12 @@ paths:
         A unique ID for the project is automatically generated.
       operationId: createProject
       requestBody:
-        description: Creates a new project
+        description: Project containing data
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Project'
-        required: true
       responses:
         '201':
           description: A new project was created successfully.
@@ -88,6 +88,8 @@ paths:
             type: string
             format: uuid
       requestBody:
+        description: Project containing data
+        required: true
         content:
           application/json:
             schema:
@@ -134,7 +136,6 @@ components:
         - title
         - state
         - complexity
-        - createdAt
       properties:
         id:
           type: string

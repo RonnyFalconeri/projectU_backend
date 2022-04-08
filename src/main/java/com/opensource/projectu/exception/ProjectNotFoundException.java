@@ -8,5 +8,7 @@ import java.util.UUID;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class ProjectNotFoundException extends RuntimeException {
-    public ProjectNotFoundException(@Valid UUID id) {super("Project with id "+ id +" not found.");}
+    public ProjectNotFoundException(@Valid UUID id) {
+        super("Project with id "+ id +" not found.");
+    }
 }

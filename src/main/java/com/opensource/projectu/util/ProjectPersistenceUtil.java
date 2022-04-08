@@ -17,7 +17,6 @@ public final class ProjectPersistenceUtil {
     }
 
     public static long getCurrentTimestamp() {
-        Calendar calendar = Calendar.getInstance();
-        return calendar.getTimeInMillis();
+        return Calendar.getInstance().getTimeInMillis();
     }
 }

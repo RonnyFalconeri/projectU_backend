@@ -40,4 +40,9 @@ class ProjectPersistenceUtilTest {
 
         assertThat(returnedId).isNotEqualTo(mockId);
     }
+
+    @Test
+    void getCurrentTimestampShouldReturnTimestampFormat() {
+        // TODO: implement
+    }
 }

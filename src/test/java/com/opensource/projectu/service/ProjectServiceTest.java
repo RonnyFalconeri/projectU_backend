@@ -38,19 +38,20 @@ class ProjectServiceTest {
                 .thenReturn(mockProjects);
 
         var returnedProjects = projectService.getAllProjects();
-        int randomIndex = generateRandomInteger(0, mockProjects.size()-1);
+        int randomIndex = generateRandomInteger(mockProjects.size()-1);
         var returnedProject = returnedProjects.get(randomIndex);
         var mockProject = mockProjects.get(randomIndex);
 
+        assertThat(returnedProjects).hasSameSizeAs(mockProjects);
         assertThat(returnedProject).isEqualTo(mockProject);
     }
 
-    private int generateRandomInteger(int min, int max) {
-        return min + (int)(Math.random() * ((max - min) + 1));
+    private int generateRandomInteger(int max) {
+        return (int) (Math.random() * ((max) + 1));
     }
 
     @Test
-    void getProjectByIdWithSuccess() {
+    void getProjectByIdShouldReturnProjectWhenProjectFound() {
         var mockProject = buildMockProject();
 
         when(projectRepository.findById(mockProject.getId()))
@@ -86,7 +87,7 @@ class ProjectServiceTest {
     }
 
     @Test
-    void updateProjectShouldReturnProjectWhenSuccessful() {
+    void updateProjectShouldReturnProjectWhenProjectFound() {
         var mockProject = buildMockProject();
 
         when(projectRepository.findById(mockProject.getId()))
