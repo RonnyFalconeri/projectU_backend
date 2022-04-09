@@ -115,7 +115,7 @@ class ProjectControllerTest {
                 .when(projectService).createProject(invalidMockProject);
 
         var request = MockMvcRequestBuilders
-                .delete("/projects")
+                .post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(invalidMockProject));
@@ -252,7 +252,6 @@ class ProjectControllerTest {
     private Project buildInvalidMockProject() {
         return Project.builder()
                 .id(UUID.randomUUID())
-                .title("")
                 .description("description1")
                 .estimatedDurationInHours(10)
                 .expectedResult("1 successful unit test")
