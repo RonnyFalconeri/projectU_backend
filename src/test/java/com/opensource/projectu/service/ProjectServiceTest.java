@@ -69,8 +69,10 @@ class ProjectServiceTest {
         when(projectRepository.findById(mockProject.getId()))
                 .thenReturn(Optional.empty());
 
+        var id = mockProject.getId();
+
         assertThatThrownBy(
-                () -> projectService.getProjectById(mockProject.getId()))
+                () -> projectService.getProjectById(id))
                 .isInstanceOf(ProjectNotFoundException.class);
     }
 
@@ -135,8 +137,10 @@ class ProjectServiceTest {
         when(projectRepository.existsById(mockProject.getId()))
                 .thenReturn(false);
 
+        var id = mockProject.getId();
+
         assertThatThrownBy(
-                () -> projectService.deleteProject(mockProject.getId()))
+                () -> projectService.deleteProject(id))
                 .isInstanceOf(ProjectNotFoundException.class);
     }
 

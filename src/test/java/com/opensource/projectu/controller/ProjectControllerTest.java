@@ -1,6 +1,7 @@
 package com.opensource.projectu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opensource.projectu.exception.ProjectIsInvalidException;
 import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Complexity;
 import com.opensource.projectu.openapi.model.Project;
@@ -41,7 +42,6 @@ class ProjectControllerTest {
     @Test
     void getAllProjectsShouldReturnAllProjectsWith200WhenSuccess() throws Exception {
         var mockProjects = buildMockProjects();
-        var mockProject = mockProjects.get(2);
 
         when(projectService.getAllProjects())
                 .thenReturn(mockProjects);
@@ -52,22 +52,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$",
-                        hasSize(mockProjects.size())))
-                .andExpect(jsonPath("$[2].id",
-                        is(mockProject.getId().toString())))
-                .andExpect(jsonPath("$[2].title",
-                        is(mockProject.getTitle())))
-                .andExpect(jsonPath("$[2].description",
-                        is(mockProject.getDescription())))
-                .andExpect(jsonPath("$[2].tasks[1].title",
-                        is(mockProject.getTasks().get(1).getTitle())))
-                .andExpect(jsonPath("$[2].state",
-                        is(mockProject.getState().toString())))
-                .andExpect(jsonPath("$[2].complexity",
-                        is(mockProject.getComplexity().toString())))
-                .andExpect(jsonPath("$[2].estimatedDurationInHours",
-                        is(mockProject.getEstimatedDurationInHours())));
+                .andExpect(jsonPath("$", notNullValue()));
     }
 
     @Test
@@ -83,8 +68,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.title", is(mockProject.getTitle())));
+                .andExpect(jsonPath("$", notNullValue()));
     }
 
     @Test
@@ -120,13 +104,26 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.description", is(mockProject.getDescription())));
+                .andExpect(jsonPath("$", notNullValue()));
     }
 
     @Test
-    void createProjectShouldReturnExceptionWith400WhenProjectIsInvalid() {
-        // TODO: mock incomplete project and try to create it
+    void createProjectShouldReturnExceptionWith400WhenProjectIsInvalid() throws Exception {
+        var invalidMockProject = buildInvalidMockProject();
+
+        doThrow(new ProjectIsInvalidException(invalidMockProject))
+                .when(projectService).createProject(invalidMockProject);
+
+        var request = MockMvcRequestBuilders
+                .delete("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectIsInvalidException));
     }
 
     @Test
@@ -144,9 +141,7 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
-                .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
+                .andExpect(jsonPath("$", notNullValue()));
     }
 
     @Test
@@ -164,14 +159,26 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$", notNullValue()))
-                .andExpect(jsonPath("$.title", is(mockProject.getTitle())))
-                .andExpect(jsonPath("$.tasks[0].title", is(mockProject.getTasks().get(0).getTitle())));
+                .andExpect(jsonPath("$", notNullValue()));
     }
 
     @Test
-    void updateProjectShouldReturnExceptionWith400WhenProjectIsInvalid() {
-        // TODO: mock incomplete project and try to update it
+    void updateProjectShouldReturnExceptionWith400WhenProjectIsInvalid() throws Exception {
+        var invalidMockProject = buildInvalidMockProject();
+
+        when(projectService.updateProject(invalidMockProject.getId(), invalidMockProject))
+                .thenReturn(new ResponseEntity<>(invalidMockProject, HttpStatus.OK));
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/{id}", invalidMockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectIsInvalidException));
     }
 
     @Test
@@ -238,6 +245,17 @@ class ProjectControllerTest {
                 .estimatedDurationInHours(10)
                 .expectedResult("1 successful unit test")
                 .createdAt(1508484583267L)
+                .startedAt("01.01.2022")
+                .build();
+    }
+
+    private Project buildInvalidMockProject() {
+        return Project.builder()
+                .id(UUID.randomUUID())
+                .title("")
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .expectedResult("1 successful unit test")
                 .startedAt("01.01.2022")
                 .build();
     }
