@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -30,9 +31,9 @@ public class ProjectService {
     }
 
     public Project createProject(Project project) {
-        project.id(generateUniqueId(UUID.randomUUID(), projectRepository))
-                .createdAt(getCurrentTimestamp());
-        return projectRepository.save(project);
+        return projectRepository.save(project
+                .id(generateUniqueId(UUID.randomUUID(), projectRepository))
+                .createdAt(getCurrentTimestamp()));
     }
 
     @Transactional

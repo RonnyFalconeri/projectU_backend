@@ -1,7 +1,6 @@
 package com.opensource.projectu.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.opensource.projectu.exception.ProjectIsInvalidException;
 import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Complexity;
 import com.opensource.projectu.openapi.model.Project;
@@ -17,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -108,11 +108,38 @@ class ProjectControllerTest {
     }
 
     @Test
-    void createProjectShouldReturnExceptionWith400WhenProjectIsInvalid() throws Exception {
-        var invalidMockProject = buildInvalidMockProject();
+    void createProjectShouldReturnProjectWith201WhenRequiredFieldsAreThere() throws Exception {
+        var mockProject = Project.builder()
+                .id(UUID.randomUUID())
+                .title("title 1")
+                .state(State.IN_PROGRESS)
+                .complexity(Complexity.EASY)
+                .build();
 
-        doThrow(new ProjectIsInvalidException(invalidMockProject))
-                .when(projectService).createProject(invalidMockProject);
+        when(projectService.createProject(mockProject))
+                .thenReturn(mockProject);
+
+        var request = MockMvcRequestBuilders
+                .post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", notNullValue()));
+    }
+
+    @Test
+    void createProjectShouldReturnExceptionWith400WhenTitleIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .state(State.IN_PROGRESS)
+                .complexity(Complexity.EASY)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
 
         var request = MockMvcRequestBuilders
                 .post("/projects")
@@ -122,8 +149,54 @@ class ProjectControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectIsInvalidException));
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void createProjectShouldReturnExceptionWith400WhenStateIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .title("qwer")
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .complexity(Complexity.EASY)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void createProjectShouldReturnExceptionWith400WhenComplexityIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .title("qwer")
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .state(State.IN_PROGRESS)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .post("/projects")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
     }
 
     @Test
@@ -163,22 +236,95 @@ class ProjectControllerTest {
     }
 
     @Test
-    void updateProjectShouldReturnExceptionWith400WhenProjectIsInvalid() throws Exception {
-        var invalidMockProject = buildInvalidMockProject();
+    void updateProjectShouldReturnProjectWith200WhenRequiredFieldsAreThere() throws Exception {
+        var mockProject = Project.builder()
+                .id(UUID.randomUUID())
+                .title("title 1")
+                .state(State.IN_PROGRESS)
+                .complexity(Complexity.EASY)
+                .build();
 
-        when(projectService.updateProject(invalidMockProject.getId(), invalidMockProject))
-                .thenReturn(new ResponseEntity<>(invalidMockProject, HttpStatus.OK));
+        when(projectService.updateProject(mockProject.getId(), mockProject))
+                .thenReturn(new ResponseEntity<>(mockProject, HttpStatus.OK));
 
         var request = MockMvcRequestBuilders
-                .put("/projects/{id}", invalidMockProject.getId())
+                .put("/projects/{id}", mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()));
+    }
+
+    @Test
+    void updateProjectShouldReturnErrorResponseWith400WhenTitleIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .state(State.IN_PROGRESS)
+                .complexity(Complexity.EASY)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(invalidMockProject));
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest())
-                .andExpect(result ->
-                        assertTrue(result.getResolvedException() instanceof ProjectIsInvalidException));
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void updateProjectShouldReturnErrorResponseWith400WhenStateIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .title("title 1")
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .complexity(Complexity.EASY)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/{id}", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void updateProjectShouldReturnErrorResponseWith400WhenComplexityIsMissing() throws Exception {
+        var invalidMockProject = Project.builder()
+                .title("title 1")
+                .description("description1")
+                .estimatedDurationInHours(10)
+                .state(State.IN_PROGRESS)
+                .expectedResult("1 successful unit test")
+                .startedAt("01.01.2022")
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .put("/projects/{id}", UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidMockProject));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
     }
 
     @Test
@@ -245,16 +391,6 @@ class ProjectControllerTest {
                 .estimatedDurationInHours(10)
                 .expectedResult("1 successful unit test")
                 .createdAt(1508484583267L)
-                .startedAt("01.01.2022")
-                .build();
-    }
-
-    private Project buildInvalidMockProject() {
-        return Project.builder()
-                .id(UUID.randomUUID())
-                .description("description1")
-                .estimatedDurationInHours(10)
-                .expectedResult("1 successful unit test")
                 .startedAt("01.01.2022")
                 .build();
     }
