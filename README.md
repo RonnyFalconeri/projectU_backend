@@ -2,28 +2,41 @@
 
 ## Introduction
 projectU explained, screenshots
-this backend explained, api examples
-about frontend
+backend explained
+
+## Demo
+GIF of screen using application
+
+## About projectU
+what problem does it solve
+
+### What can I do with it
+
+### What are projects
+describe colors of state
+describe complexity
+
+### What are Tasks
 
 ## Technology Stack
-Java with Spring Boot
-openapi
-MongoDB, Mongo Express
-Docker
+Angular / TypeScript
 diagramm
 
 
 ## Getting Started
 
 ### Requirements
-Java version 11
-Docker
+Java 11
+maven
+docker
 
-### Starting Docker and MongoDB
-start docker container with docker-compose up
+### Start MongoDB in Docker
+
+### Access MongoDB in the browser with Mongo Express
+- localhost:8082
+
+### Generate the API
+- required before starting
+- maven clean compile
 
 ### Start application
-how to start spring boot application
-open browser localhost
-
-### How to generate openapi
