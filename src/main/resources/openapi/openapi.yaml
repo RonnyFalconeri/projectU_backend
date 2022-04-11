@@ -10,11 +10,11 @@ paths:
       tags:
         - project
       summary: Get all projects
-      description: Returns every Project
+      description: Returns a list containing every project.
       operationId: getAllProjects
       responses:
         '200':
-          description: successful operation
+          description: A list containing every project is returned successfully.
           content:
             application/json:
               schema:
@@ -26,42 +26,31 @@ paths:
       tags:
         - project
       summary: Create new project
+      description: >
+        Creates a new project.
+        A unique ID for the project is automatically generated.
       operationId: createProject
       requestBody:
-        description: Creates a new project
+        description: Project containing data
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Project'
-        required: true
       responses:
         '201':
-          description: Project created
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-            Content-Location:
-              schema:
-                type: string
-                format: uri
+          description: A new project was created successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-          links:
-            getProjectById:
-              operationId: getProjectById
-              parameters:
-                id: $response.body#/id
 
   /projects/{id}:
     get:
       tags:
         - project
-      summary: Get project by id
-      description: Returns a single project
+      summary: Get project by ID
+      description: Returns a project with a specific ID.
       operationId: getProjectById
       parameters:
         - name: id
@@ -70,18 +59,25 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
-          description: successful operation
+          description: A project with the specified ID is returned successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+        '404':
+          description: A project with the specified ID was not found.
 
-    post:
+    put:
       tags:
         - project
-      summary: Updates a project
+      summary: Update project
+      description: >
+        Updates a project with a specific ID. 
+        If no project with the specified ID was found, 
+        a new project with the specified ID will be created.
       operationId: updateProject
       parameters:
         - name: id
@@ -90,63 +86,60 @@ paths:
           required: true
           schema:
             type: string
+            format: uuid
       requestBody:
+        description: Project containing data
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Project'
       responses:
-        '201':
-          description: Project updated
-          headers:
-            Location:
-              schema:
-                type: string
-                format: uri
-            Content-Location:
-              schema:
-                type: string
-                format: uri
+        '200':
+          description: A project with the specified ID was updated successfully.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
-          links:
-            getProjectById:
-              operationId: getProjectById
-              parameters:
-                id: $response.body#/id
+        '201':
+          description: A project with the specified ID was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
 
     delete:
       tags:
         - project
-      summary: Deletes a project
+      summary: Delete project by ID
+      description: Deletes a project with a specific ID.
       operationId: deleteProject
       parameters:
         - name: id
           in: path
-          description: Project id to delete
+          description: Project ID to delete
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '204':
-          description: Project successfully deleted
+          description: A project with the specified ID was deleted successfully.
+        '404':
+          description: A project with the specified ID was not found.
 
 components:
   schemas:
     Project:
       type: object
       required:
-        - id
         - title
-        - tasks
         - state
         - complexity
-        - createdAt
       properties:
         id:
           type: string
+          format: uuid
         title:
           type: string
         description:
@@ -166,17 +159,18 @@ components:
         actualResult:
           type: string
         createdAt:
-          type: string
+          type: integer
+          format: int64
         startedAt:
           type: string
         finishedAt:
           type: string
       example:
-        id: 1234
+        id: 2ebeba4e-67a0-44f9-baed-2ebf6c903648
         title: Learn to design an API
         description: A project for learning and applying REST API practises
         tasks:
-          - id: 123
+          - id: 1adfb959-5152-4cd7-abae-00ea07fa6056
             title: Learn OpenApi
             description: A task for learning the OpenApi specification
             done: false
@@ -194,12 +188,12 @@ components:
     Task:
       type: object
       required:
-        - id
         - title
         - done
       properties:
         id:
           type: string
+          format: uuid
         title:
           type: string
         description:
@@ -211,7 +205,7 @@ components:
         result:
           type: string
       example:
-        id: 123
+        id: 1adfb959-5152-4cd7-abae-00ea07fa6056
         title: Learn OpenApi
         description: A task for learning the OpenApi specification
         done: false
@@ -220,7 +214,6 @@ components:
 
     State:
       type: string
-      nullable: false
       enum:
         - INITIATED
         - IN_PROGRESS
@@ -229,7 +222,6 @@ components:
 
     Complexity:
       type: string
-      nullable: false
       enum:
         - EASY
         - MEDIUM

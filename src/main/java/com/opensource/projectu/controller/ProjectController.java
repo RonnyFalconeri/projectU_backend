@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -18,57 +18,27 @@ public class ProjectController implements ProjectsApi {
 
     @Override
     public ResponseEntity<List<Project>> getAllProjects() {
-        try {
-            List<Project> projects = projectService.getAllProjects();
-
-            if (projects.isEmpty()) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
-            return new ResponseEntity<>(projects, HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(projectService.getAllProjects(), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Project> getProjectById(String id) {
-        Optional<Project> projectData = projectService.getProjectById(id);
-
-        if (projectData.isPresent()) {
-            return new ResponseEntity<>(projectData.get(), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Project> getProjectById(UUID id) {
+        return new ResponseEntity<>(projectService.getProjectById(id), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Project> createProject(Project project) {
-        try {
-            projectService.createProject(project);
-            return new ResponseEntity<>(project, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseEntity<>(projectService.createProject(project), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<Project> updateProject(String id, Project project) {
-        Optional<Project> projectData = projectService.getProjectById(id);
-
-        if (projectData.isPresent()) {
-            projectService.updateProject(id, project);
-            return new ResponseEntity<>(project, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Project> updateProject(UUID id, Project project) {
+        return projectService.updateProject(id, project);
     }
 
     @Override
-    public ResponseEntity<Void> deleteProject(String id) {
-        try {
-            projectService.deleteProject(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<Void> deleteProject(UUID id) {
+        projectService.deleteProject(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
