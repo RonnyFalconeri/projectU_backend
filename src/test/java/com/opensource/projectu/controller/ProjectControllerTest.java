@@ -358,6 +358,23 @@ class ProjectControllerTest {
                         assertTrue(result.getResolvedException() instanceof ProjectNotFoundException));
     }
 
+    @Test
+    void methodShouldReturnCustomErrorResponseWith500WhenUnexpectedException() throws Exception {
+        var id = UUID.randomUUID();
+
+        when(projectService.getProjectById(id))
+                .thenThrow(new RuntimeException());
+
+        var request = MockMvcRequestBuilders
+                .get("/projects/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.message", containsString("Unexpected Error:")))
+                .andExpect(jsonPath("$.httpStatus", is("INTERNAL_SERVER_ERROR")));
+    }
+
     private Project buildMockProject() {
         return Project.builder()
                 .id(UUID.randomUUID())

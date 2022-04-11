@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 @Builder
 @Value
-public class ApiExceptionModel {
+public class CustomErrorResponse {
     String message;
     HttpStatus httpStatus;
     ZonedDateTime timestamp;
