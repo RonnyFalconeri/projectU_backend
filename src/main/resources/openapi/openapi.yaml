@@ -31,7 +31,7 @@ paths:
         A unique ID for the project is automatically generated.
       operationId: createProject
       requestBody:
-        description: Project containing data
+        description: Project containing at least the required attributes
         required: true
         content:
           application/json:
@@ -128,6 +128,114 @@ paths:
         '404':
           description: A project with the specified ID was not found.
 
+  /projects/{id}/tasks:
+    post:
+      tags:
+        - task
+      summary: Create new task
+      description: >
+        Creates a new task.
+        A unique ID for the task is automatically generated.
+      operationId: createTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of the project of the task
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Task containing at least the required attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '201':
+          description: A new task was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+
+  /tasks/{id}:
+    get:
+      tags:
+        - task
+      summary: Get task by ID
+      description: Returns a task with a specific ID.
+      operationId: getTaskById
+      parameters:
+        - name: id
+          in: path
+          description: ID of task to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A task with the specified ID is returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: A task with the specified ID was not found.
+
+    put:
+      tags:
+        - task
+      summary: Update task
+      description: Updates a task with a specific ID.
+      operationId: updateTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of task to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Task containing data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: A task with the specified ID was updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: A task with the specified ID was not found.
+
+    delete:
+      tags:
+        - task
+      summary: Delete task by ID
+      description: Deletes a task with a specific ID.
+      operationId: deleteTask
+      parameters:
+        - name: id
+          in: path
+          description: Task ID to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: A task with the specified ID was deleted successfully.
+        '404':
+          description: A task with the specified ID was not found.
+
 components:
   schemas:
     Project:
@@ -181,9 +289,9 @@ components:
         estimatedDurationInHours: 23
         expectedResult: Learning something.
         actualResult: Learned a lot!
-        createdAt: 01.01.2021
-        startedAt: 02.01.2021
-        finishedAt: 03.01.2021
+        createdAt: 1649693507720
+        startedAt: 1649693507720
+        finishedAt: 1649693507720
 
     Task:
       type: object
@@ -230,3 +338,6 @@ components:
 tags:
   - name: project
     description: An operation including projects
+
+  - name: task
+    description: An operation including tasks
