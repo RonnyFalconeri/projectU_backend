@@ -5,7 +5,6 @@ import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Complexity;
 import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.openapi.model.State;
-import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.service.ProjectService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +16,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
+import static testutil.MockTestingUtil.buildMockProject;
+import static testutil.MockTestingUtil.buildMockProjects;
 
 @WebMvcTest(ProjectController.class)
 class ProjectControllerTest {
@@ -373,119 +371,5 @@ class ProjectControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message", containsString("Unexpected Error:")))
                 .andExpect(jsonPath("$.httpStatus", is("INTERNAL_SERVER_ERROR")));
-    }
-
-    private Project buildMockProject() {
-        return Project.builder()
-                .id(UUID.randomUUID())
-                .title("title1")
-                .description("description1")
-                .tasks(Arrays.asList(
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(1)
-                                .build(),
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task2")
-                                .description("task description2")
-                                .done(false)
-                                .estimatedDurationInHours(2)
-                                .build(),
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(3)
-                                .build()
-                ))
-                .state(State.INITIATED)
-                .complexity(Complexity.EASY)
-                .estimatedDurationInHours(10)
-                .expectedResult("1 successful unit test")
-                .createdAt(1508484583267L)
-                .startedAt("01.01.2022")
-                .build();
-    }
-
-    private List<Project> buildMockProjects() {
-        return new ArrayList<>(Arrays.asList(
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title1")
-                        .description("description1")
-                        .tasks(Arrays.asList(
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(1)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task2")
-                                        .description("task description2")
-                                        .done(false)
-                                        .estimatedDurationInHours(2)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(3)
-                                        .build()
-                        ))
-                        .state(State.INITIATED)
-                        .complexity(Complexity.EASY)
-                        .estimatedDurationInHours(10)
-                        .expectedResult("1 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("01.01.2022")
-                        .build(),
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title2")
-                        .description("description2")
-                        .state(State.HALTED)
-                        .complexity(Complexity.MEDIUM)
-                        .estimatedDurationInHours(20)
-                        .expectedResult("2 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("02.01.2022")
-                        .build(),
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title3")
-                        .description("description3")
-                        .tasks(Arrays.asList(
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(1)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task2")
-                                        .description("task description2")
-                                        .done(false)
-                                        .estimatedDurationInHours(2)
-                                        .build()
-                        ))
-                        .state(State.FINISHED)
-                        .complexity(Complexity.DIFFICULT)
-                        .estimatedDurationInHours(30)
-                        .expectedResult("3 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("03.01.2022")
-                        .build()
-        ));
     }
 }
