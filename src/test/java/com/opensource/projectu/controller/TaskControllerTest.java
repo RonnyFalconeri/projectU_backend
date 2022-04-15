@@ -1,5 +1,6 @@
 package com.opensource.projectu.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opensource.projectu.exception.TaskNotFoundException;
 import com.opensource.projectu.service.TaskService;
@@ -60,6 +61,43 @@ class TaskControllerTest {
                 .get("/tasks/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof TaskNotFoundException));
+    }
+
+    @Test
+    void updateTaskShouldReturnTaskWith200WhenTaskFound() throws Exception {
+        var mockTask = buildMockTask();
+
+        when(taskService.updateTask(mockTask.getId(), mockTask))
+                .thenReturn(mockTask);
+
+        var request = MockMvcRequestBuilders
+                .put("/tasks/{id}", mockTask.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockTask));
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", notNullValue()));
+    }
+
+    @Test
+    void updateTaskShouldReturnExceptionWith404WhenTaskNotFound() throws Exception {
+        var mockTask = buildMockTask();
+
+        when(taskService.updateTask(mockTask.getId(), mockTask))
+                .thenThrow(new TaskNotFoundException(mockTask.getId()));
+
+        var request = MockMvcRequestBuilders
+                .put("/tasks/{id}", mockTask.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockTask));
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound())

@@ -140,5 +140,11 @@ public class MockTestingUtil {
         return (int) (Math.random() * ((max) + 1));
     }
 
+    public static Project buildProjectContainingTask(Task task) {
+        return Project.builder()
+                .tasks(List.of(task))
+                .build();
+    }
+
     private MockTestingUtil() {}
 }

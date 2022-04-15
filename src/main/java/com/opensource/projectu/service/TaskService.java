@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
+import static com.opensource.projectu.util.ProjectPersistenceUtil.findTaskOfProjectById;
+import static com.opensource.projectu.util.ProjectPersistenceUtil.overwriteTaskOfProject;
+
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -16,16 +19,17 @@ public class TaskService {
 
     public Task getTaskById(UUID id) {
         return projectRepository.findByTasksId(id)
-                .flatMap(project -> project.getTasks()
-                        .stream()
-                        .filter(task -> task.getId().equals(id))
-                        .findFirst())
+                .flatMap(project -> findTaskOfProjectById(project, id))
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
     public Task updateTask(UUID id, Task task) {
-        // TODO: implement
-        return null;
+        return projectRepository.findByTasksId(id)
+                .map(project -> { projectRepository.save(
+                    overwriteTaskOfProject(id, task, project));
+                    return task;
+                })
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
     public Task deleteTask(UUID id) {

@@ -22,8 +22,8 @@ public class TaskController implements TasksApi {
 
     @Override
     public ResponseEntity<Task> updateTask(UUID id, Task task) {
-        // TODO: implement
-        return TasksApi.super.updateTask(id, task);
+        return new ResponseEntity<>(taskService.updateTask(id, task), HttpStatus.OK);
+
     }
 
     @Override
