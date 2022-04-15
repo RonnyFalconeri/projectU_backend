@@ -1,6 +1,7 @@
 package com.opensource.projectu.controller;
 
 import com.opensource.projectu.openapi.api.TasksApi;
+import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.service.TaskService;
 import lombok.AllArgsConstructor;
@@ -27,8 +28,7 @@ public class TaskController implements TasksApi {
     }
 
     @Override
-    public ResponseEntity<Void> deleteTask(UUID id) {
-        // TODO: implement
-        return TasksApi.super.deleteTask(id);
+    public ResponseEntity<Project> deleteTask(UUID id) {
+        return new ResponseEntity<>(taskService.deleteTask(id), HttpStatus.OK);
     }
 }

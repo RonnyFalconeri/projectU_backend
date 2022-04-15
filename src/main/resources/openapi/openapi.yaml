@@ -233,8 +233,12 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
-          description: A task with the specified ID was deleted successfully.
+        '200':
+          description: The task of the project was deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
         '404':
           description: A task with the specified ID was not found.
 

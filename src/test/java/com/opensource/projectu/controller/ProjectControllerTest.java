@@ -327,12 +327,8 @@ class ProjectControllerTest {
 
     @Test
     void deleteProjectShouldReturn204WhenSuccess() throws Exception {
-        var mockProject = buildMockProject();
-
-        doNothing().when(projectService).deleteProject(mockProject.getId());
-
         var request = MockMvcRequestBuilders
-                .delete("/projects/{id}", mockProject.getId())
+                .delete("/projects/{id}", UUID.randomUUID())
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(request)

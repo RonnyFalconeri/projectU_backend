@@ -44,7 +44,7 @@ public final class ProjectPersistenceUtil {
                 .findFirst();
     }
 
-    protected static Project removeTaskWithIdFromProject(UUID taskId, Project project) {
+    public static Project removeTaskWithIdFromProject(UUID taskId, Project project) {
         return project.tasks(project.getTasks()
                 .stream()
                 .filter(task -> !task.getId().equals(taskId))

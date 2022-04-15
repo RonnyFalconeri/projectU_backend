@@ -1,6 +1,7 @@
 package com.opensource.projectu.service;
 
 import com.opensource.projectu.exception.TaskNotFoundException;
+import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
@@ -8,8 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static com.opensource.projectu.util.ProjectPersistenceUtil.findTaskOfProjectById;
-import static com.opensource.projectu.util.ProjectPersistenceUtil.overwriteTaskOfProject;
+import static com.opensource.projectu.util.ProjectPersistenceUtil.*;
 
 @Service
 @AllArgsConstructor
@@ -32,8 +32,10 @@ public class TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
-    public Task deleteTask(UUID id) {
-        // TODO: implement
-        return null;
+    public Project deleteTask(UUID id) {
+        return projectRepository.findByTasksId(id)
+                .map(project -> projectRepository.save(
+                        removeTaskWithIdFromProject(id, project)))
+                .orElseThrow(() -> new TaskNotFoundException(id));
     }
 }

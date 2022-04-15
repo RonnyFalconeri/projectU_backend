@@ -1,8 +1,6 @@
 package com.opensource.projectu.service;
 
 import com.opensource.projectu.exception.TaskNotFoundException;
-import com.opensource.projectu.openapi.model.Project;
-import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,15 +8,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static testutil.MockTestingUtil.buildMockTask;
-import static testutil.MockTestingUtil.buildProjectContainingTask;
+import static testutil.MockTestingUtil.*;
 
 @ExtendWith(MockitoExtension.class)
 class TaskServiceTest {
@@ -79,6 +74,36 @@ class TaskServiceTest {
 
         assertThatThrownBy(
                 () -> taskService.updateTask(id, mockTask))
+                .isInstanceOf(TaskNotFoundException.class);
+    }
+
+    @Test
+    void deleteTaskShouldReturnProjectWhenTaskFound() {
+        var mockTask = buildMockTask();
+
+        var mockProject = buildProjectContainingTask(mockTask);
+
+        when(projectRepository.findByTasksId(mockTask.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = taskService.deleteTask(mockTask.getId());
+
+        assertThat(returnedProject.getTasks())
+                .isEmpty();
+    }
+
+    @Test
+    void deleteTaskShouldThrowExceptionWhenTaskNotFound() {
+        var id = UUID.randomUUID();
+
+        when(projectRepository.findByTasksId(id))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+                () -> taskService.deleteTask(id))
                 .isInstanceOf(TaskNotFoundException.class);
     }
 }
