@@ -54,7 +54,7 @@ class ProjectControllerTest {
     }
 
     @Test
-    void getProjectByIdShouldReturnProjectWith200WhenSuccess() throws Exception {
+    void getProjectByIdShouldReturnProjectWith200WhenProjectFound() throws Exception {
         var mockProject = buildMockProject();
 
         when(projectService.getProjectById(mockProject.getId()))
@@ -71,13 +71,13 @@ class ProjectControllerTest {
 
     @Test
     void getProjectByIdShouldReturnExceptionWith404WhenProjectNotFound() throws Exception {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectService.getProjectById(mockProject.getId()))
-                .thenThrow(new ProjectNotFoundException(mockProject.getId()));
+        when(projectService.getProjectById(id))
+                .thenThrow(new ProjectNotFoundException(id));
 
         var request = MockMvcRequestBuilders
-                .get("/projects/{id}", mockProject.getId())
+                .get("/projects/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 

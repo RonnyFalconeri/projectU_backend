@@ -25,6 +25,17 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
                 status);
     }
 
+    @ExceptionHandler(value = TaskNotFoundException.class)
+    public ResponseEntity<CustomErrorResponse> handleTaskNotFound(TaskNotFoundException e) {
+        var status = HttpStatus.NOT_FOUND;
+        return new ResponseEntity<>(CustomErrorResponse.builder()
+                .message(e.getMessage())
+                .httpStatus(status)
+                .timestamp(ZonedDateTime.now())
+                .build(),
+                status);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleOtherExceptions(Exception e) {
         var status = HttpStatus.INTERNAL_SERVER_ERROR;
