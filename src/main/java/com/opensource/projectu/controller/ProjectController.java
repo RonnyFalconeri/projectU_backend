@@ -44,8 +44,7 @@ public class ProjectController implements ProjectsApi {
     }
 
     @Override
-    public ResponseEntity<Task> createTask(UUID id, Task task) {
-        // TODO: implement
-        return ProjectsApi.super.createTask(id, task);
+    public ResponseEntity<Project> createTask(UUID id, Task task) {
+        return new ResponseEntity<>(projectService.createTask(id, task), HttpStatus.CREATED);
     }
 }

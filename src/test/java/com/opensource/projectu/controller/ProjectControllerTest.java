@@ -5,6 +5,7 @@ import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Complexity;
 import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.openapi.model.State;
+import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.service.ProjectService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.hamcrest.Matchers.*;
-import static testutil.MockTestingUtil.buildMockProject;
-import static testutil.MockTestingUtil.buildMockProjects;
+import static testutil.MockTestingUtil.*;
 
 @WebMvcTest(ProjectController.class)
 class ProjectControllerTest {
@@ -371,5 +371,89 @@ class ProjectControllerTest {
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.message", containsString("Unexpected Error:")))
                 .andExpect(jsonPath("$.httpStatus", is("INTERNAL_SERVER_ERROR")));
+    }
+
+    @Test
+    void createTaskShouldReturnProjectWith201WhenSuccess() throws Exception {
+        var mockProject = buildMockProject();
+        var mockTask = buildMockTask();
+
+        when(projectService.createTask(mockProject.getId(), mockTask))
+                .thenReturn(mockProject);
+
+        var request = MockMvcRequestBuilders
+                .post("/projects/{id}/tasks", mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(mockTask));
+
+        mockMvc.perform(request)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$", notNullValue()));
+    }
+
+    @Test
+    void createTaskShouldReturnErrorResponseWith400WhenTitleIsMissing() throws Exception {
+        var mockProject = buildMockProject();
+
+        var invalidTask = Task.builder()
+                .description("a description")
+                .done(false)
+                .estimatedDurationInHours(12)
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .post("/projects/{id}/tasks", mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidTask));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void createTaskShouldReturnErrorResponseWith400WhenDoneIsMissing() throws Exception {
+        var mockProject = buildMockProject();
+
+        var invalidTask = Task.builder()
+                .title("a title")
+                .description("a description")
+                .estimatedDurationInHours(12)
+                .build();
+
+        var request = MockMvcRequestBuilders
+                .post("/projects/{id}/tasks", mockProject.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidTask));
+
+        mockMvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("ERROR: Project is invalid. Reason:")))
+                .andExpect(jsonPath("$.httpStatus", is("BAD_REQUEST")));
+    }
+
+    @Test
+    void createTaskShouldReturnExceptionWith404WhenProjectNotFound() throws Exception {
+        var mockId = UUID.randomUUID();
+
+        var invalidTask = buildMockTask();
+
+        when(projectService.createTask(mockId, invalidTask))
+                .thenThrow(new ProjectNotFoundException(mockId));
+
+        var request = MockMvcRequestBuilders
+                .post("/projects/{id}/tasks", mockId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(invalidTask));
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound())
+                .andExpect(result ->
+                        assertTrue(result.getResolvedException() instanceof ProjectNotFoundException));
     }
 }

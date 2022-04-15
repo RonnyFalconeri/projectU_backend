@@ -9,11 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
-import static testutil.MockTestingUtil.buildMockProject;
-import static testutil.MockTestingUtil.buildMockProjects;
+import static testutil.MockTestingUtil.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -44,10 +42,6 @@ class ProjectServiceTest {
         assertThat(returnedProject).isEqualTo(mockProject);
     }
 
-    private int generateRandomInteger(int max) {
-        return (int) (Math.random() * ((max) + 1));
-    }
-
     @Test
     void getProjectByIdShouldReturnProjectWhenProjectFound() {
         var mockProject = buildMockProject();
@@ -62,12 +56,10 @@ class ProjectServiceTest {
 
     @Test
     void getProjectByIdShouldThrowExceptionWhenProjectNotFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.findById(mockProject.getId()))
+        when(projectRepository.findById(id))
                 .thenReturn(Optional.empty());
-
-        var id = mockProject.getId();
 
         assertThatThrownBy(
                 () -> projectService.getProjectById(id))
@@ -118,27 +110,57 @@ class ProjectServiceTest {
 
     @Test
     void deleteProjectShouldNotThrowExceptionWhenProjectFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.existsById(mockProject.getId()))
+        when(projectRepository.existsById(id))
                 .thenReturn(true);
         
         assertThatCode(
-                () -> projectService.deleteProject(mockProject.getId()))
+                () -> projectService.deleteProject(id))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void deleteProjectShouldThrowExceptionWhenProjectNotFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.existsById(mockProject.getId()))
+        when(projectRepository.existsById(id))
                 .thenReturn(false);
-
-        var id = mockProject.getId();
 
         assertThatThrownBy(
                 () -> projectService.deleteProject(id))
+                .isInstanceOf(ProjectNotFoundException.class);
+    }
+
+    @Test
+    void createTaskShouldReturnProjectWithNewTaskWhenSuccess() {
+        var mockProject = buildMockProject();
+        var mockTask = buildMockTask();
+        var originalTaskCount = mockProject.getTasks().size();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.createTask(mockProject.getId(), mockTask);
+
+        assertThat(returnedProject.getTasks())
+                .hasSize(originalTaskCount + 1)
+                .contains(mockTask);
+    }
+
+    @Test
+    void createTaskShouldThrowExceptionWhenProjectNotFound() {
+        var id = UUID.randomUUID();
+        var mockTask = buildMockTask();
+
+        when(projectRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+                () -> projectService.createTask(id, mockTask))
                 .isInstanceOf(ProjectNotFoundException.class);
     }
 }

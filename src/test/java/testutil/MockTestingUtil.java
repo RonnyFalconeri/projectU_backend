@@ -34,8 +34,8 @@ public class MockTestingUtil {
                                 .build(),
                         Task.builder()
                                 .id(UUID.randomUUID())
-                                .title("task1")
-                                .description("task description1")
+                                .title("task3")
+                                .description("task description3")
                                 .done(false)
                                 .estimatedDurationInHours(3)
                                 .build()
@@ -124,6 +124,20 @@ public class MockTestingUtil {
                         .startedAt("03.01.2022")
                         .build()
         ));
+    }
+
+    public static Task buildMockTask() {
+        return Task.builder()
+                .id(UUID.randomUUID())
+                .title("new task")
+                .description("task description new")
+                .done(false)
+                .estimatedDurationInHours(30)
+                .build();
+    }
+
+    public static int generateRandomInteger(int max) {
+        return (int) (Math.random() * ((max) + 1));
     }
 
     private MockTestingUtil() {}

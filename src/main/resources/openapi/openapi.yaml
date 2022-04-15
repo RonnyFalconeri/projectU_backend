@@ -158,7 +158,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Task'
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: A project with the specified ID was not found.
 
   /tasks/{id}:
     get:
