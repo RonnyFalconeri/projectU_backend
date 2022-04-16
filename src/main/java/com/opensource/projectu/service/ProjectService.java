@@ -32,7 +32,7 @@ public class ProjectService {
 
     public Project createProject(Project project) {
         return projectRepository.save(project
-                .id(generateUniqueId(UUID.randomUUID(), projectRepository))
+                .id(generateUniqueIdForProject(UUID.randomUUID(), projectRepository))
                 .createdAt(getCurrentTimestamp()));
     }
 
@@ -77,7 +77,10 @@ public class ProjectService {
 
     public Project createTask(UUID id, Task task) {
         return projectRepository.findById(id)
-                .map(project -> projectRepository.save(addTaskToProject(project, task)))
+                .map(project -> {
+                    task.id(generateUniqueIdForTask(UUID.randomUUID(), projectRepository));
+                    return projectRepository.save(addTaskToProject(project, task));
+                })
                 .orElseThrow(() -> new ProjectNotFoundException(id));
     }
 }

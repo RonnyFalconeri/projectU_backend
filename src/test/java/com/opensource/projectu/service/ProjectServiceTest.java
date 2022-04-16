@@ -1,6 +1,10 @@
 package com.opensource.projectu.service;
 
 import com.opensource.projectu.exception.ProjectNotFoundException;
+import com.opensource.projectu.openapi.model.Complexity;
+import com.opensource.projectu.openapi.model.Project;
+import com.opensource.projectu.openapi.model.State;
+import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -149,6 +153,35 @@ class ProjectServiceTest {
         assertThat(returnedProject.getTasks())
                 .hasSize(originalTaskCount + 1)
                 .contains(mockTask);
+    }
+
+    @Test
+    void createTaskShouldReturnProjectIncludingNewTaskWithGeneratedUniqueId() {
+        var mockProject = Project.builder()
+                .id(UUID.randomUUID())
+                .title("title1")
+                .tasks(Collections.emptyList())
+                .state(State.INITIATED)
+                .complexity(Complexity.EASY)
+                .build();
+
+        var mockTaskWithoutId = Task.builder()
+                .title("new task")
+                .description("task description new")
+                .done(false)
+                .estimatedDurationInHours(30)
+                .build();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.createTask(mockProject.getId(), mockTaskWithoutId);
+        var returnedTask = returnedProject.getTasks().get(0);
+
+        assertThat(returnedTask.getId()).isNotNull();
     }
 
     @Test

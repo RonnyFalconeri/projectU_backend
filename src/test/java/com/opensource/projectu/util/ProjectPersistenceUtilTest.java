@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.opensource.projectu.util.ProjectPersistenceUtil.*;
@@ -28,33 +29,51 @@ class ProjectPersistenceUtilTest {
     ProjectRepository projectRepository;
 
     @Test
-    void generateUniqueIdShouldReturnSameIdWhenIdDoesNotExist() {
+    void generateUniqueIdForProjectShouldReturnSameIdWhenIdDoesNotExist() {
         var mockId = UUID.randomUUID();
 
         when(projectRepository.existsById(mockId))
                 .thenReturn(false);
 
-        var returnedId = ProjectPersistenceUtil.generateUniqueId(mockId, projectRepository);
+        var returnedId = ProjectPersistenceUtil.generateUniqueIdForProject(mockId, projectRepository);
 
         assertThat(returnedId).isEqualTo(mockId);
     }
 
     @Test
-    void generateUniqueIdShouldReturnDifferentIdWhenIdAlreadyExists() {
+    void generateUniqueIdForProjectShouldReturnDifferentIdWhenIdAlreadyExists() {
         var mockId = UUID.randomUUID();
 
         when(projectRepository.existsById(mockId))
                 .thenReturn(true);
 
-        var returnedId = ProjectPersistenceUtil.generateUniqueId(mockId, projectRepository);
+        var returnedId = ProjectPersistenceUtil.generateUniqueIdForProject(mockId, projectRepository);
 
         assertThat(returnedId).isNotEqualTo(mockId);
     }
 
-    @Disabled("A proper date format has yet to be found.")
     @Test
-    void getCurrentTimestampShouldReturnTimestampFormat() {
-        // TODO: implement
+    void generateUniqueIdForTaskShouldReturnSameIdWhenIdDoesNotExist() {
+        var mockId = UUID.randomUUID();
+
+        when(projectRepository.findByTasksId(mockId))
+                .thenReturn(Optional.empty());
+
+        var returnedId = ProjectPersistenceUtil.generateUniqueIdForTask(mockId, projectRepository);
+
+        assertThat(returnedId).isEqualTo(mockId);
+    }
+
+    @Test
+    void generateUniqueIdForTaskShouldReturnDifferentIdWhenIdAlreadyExists() {
+        var mockId = UUID.randomUUID();
+
+        when(projectRepository.findByTasksId(mockId))
+                .thenReturn(Optional.of(buildMockProject()));
+
+        var returnedId = ProjectPersistenceUtil.generateUniqueIdForTask(mockId, projectRepository);
+
+        assertThat(returnedId).isNotEqualTo(mockId);
     }
 
     @Test

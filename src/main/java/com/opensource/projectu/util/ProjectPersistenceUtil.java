@@ -13,11 +13,18 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public final class ProjectPersistenceUtil {
 
-    public static UUID generateUniqueId(UUID id, ProjectRepository projectRepository) {
+    public static UUID generateUniqueIdForProject(UUID id, ProjectRepository projectRepository) {
         if(projectRepository.existsById(id)) {
-            return generateUniqueId(UUID.randomUUID(), projectRepository);
+            return generateUniqueIdForProject(UUID.randomUUID(), projectRepository);
         }
         return id;
+    }
+
+    public static UUID generateUniqueIdForTask(UUID id, ProjectRepository projectRepository) {
+        if(projectRepository.findByTasksId(id).isEmpty()) {
+            return id;
+        }
+        return generateUniqueIdForTask(UUID.randomUUID(), projectRepository);
     }
 
     public static long getCurrentTimestamp() {
@@ -27,14 +34,13 @@ public final class ProjectPersistenceUtil {
     public static Project addTaskToProject(Project project, Task task) {
         var taskList = newArrayList(project.getTasks());
         taskList.add(task);
-        project.tasks(taskList);
-        return project;
+        return project.tasks(taskList);
     }
 
     public static Project overwriteTaskOfProject(UUID taskId, Task task, Project project) {
         return addTaskToProject(
                 removeTaskWithIdFromProject(taskId, project),
-                task);
+                task.id(taskId));
     }
 
     public static Optional<Task> findTaskOfProjectById(Project project, UUID id) {
