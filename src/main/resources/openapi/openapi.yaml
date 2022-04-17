@@ -4,6 +4,10 @@ info:
   description: A REST API for the application projectU
   version: 1.0.0
 
+servers:
+  - url: http://localhost:8080
+    description: Development Server
+
 paths:
   /projects:
     get:
@@ -75,8 +79,8 @@ paths:
         - project
       summary: Update project
       description: >
-        Updates a project with a specific ID. 
-        If no project with the specified ID was found, 
+        Updates a project with a specific ID.
+        If no project with the specified ID was found,
         a new project with the specified ID will be created.
       operationId: updateProject
       parameters:
