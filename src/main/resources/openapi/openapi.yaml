@@ -135,7 +135,7 @@ paths:
   /projects/{id}/tasks:
     post:
       tags:
-        - task
+        - project
       summary: Create new task
       description: >
         Creates a new task.
