@@ -1,0 +1,353 @@
+openapi: 3.0.3
+info:
+  title: projectU REST API
+  description: A REST API for the application projectU
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+    description: Development Server
+
+paths:
+  /projects:
+    get:
+      tags:
+        - project
+      summary: Get all projects
+      description: Returns a list containing every project.
+      operationId: getAllProjects
+      responses:
+        '200':
+          description: A list containing every project is returned successfully.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Project'
+
+    post:
+      tags:
+        - project
+      summary: Create new project
+      description: >
+        Creates a new project.
+        A unique ID for the project is automatically generated.
+      operationId: createProject
+      requestBody:
+        description: Project containing at least the required attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '201':
+          description: A new project was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+  /projects/{id}:
+    get:
+      tags:
+        - project
+      summary: Get project by ID
+      description: Returns a project with a specific ID.
+      operationId: getProjectById
+      parameters:
+        - name: id
+          in: path
+          description: ID of project to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A project with the specified ID is returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: A project with the specified ID was not found.
+
+    put:
+      tags:
+        - project
+      summary: Update project
+      description: >
+        Updates a project with a specific ID.
+        If no project with the specified ID was found,
+        a new project with the specified ID will be created.
+      operationId: updateProject
+      parameters:
+        - name: id
+          in: path
+          description: ID of project to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Project containing data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: A project with the specified ID was updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '201':
+          description: A project with the specified ID was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+
+    delete:
+      tags:
+        - project
+      summary: Delete project by ID
+      description: Deletes a project with a specific ID.
+      operationId: deleteProject
+      parameters:
+        - name: id
+          in: path
+          description: Project ID to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: A project with the specified ID was deleted successfully.
+        '404':
+          description: A project with the specified ID was not found.
+
+  /projects/{id}/tasks:
+    post:
+      tags:
+        - project
+      summary: Create new task
+      description: >
+        Creates a new task.
+        A unique ID for the task is automatically generated.
+      operationId: createTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of the project of the task
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Task containing at least the required attributes
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '201':
+          description: A new task was created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: A project with the specified ID was not found.
+
+  /tasks/{id}:
+    get:
+      tags:
+        - task
+      summary: Get task by ID
+      description: Returns a task with a specific ID.
+      operationId: getTaskById
+      parameters:
+        - name: id
+          in: path
+          description: ID of task to return
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A task with the specified ID is returned successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: A task with the specified ID was not found.
+
+    put:
+      tags:
+        - task
+      summary: Update task
+      description: Updates a task with a specific ID.
+      operationId: updateTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of task to be updated
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Task containing data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: A task with the specified ID was updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: A task with the specified ID was not found.
+
+    delete:
+      tags:
+        - task
+      summary: Delete task by ID
+      description: Deletes a task with a specific ID.
+      operationId: deleteTask
+      parameters:
+        - name: id
+          in: path
+          description: Task ID to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: The task of the project was deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          description: A task with the specified ID was not found.
+
+components:
+  schemas:
+    Project:
+      type: object
+      required:
+        - title
+        - state
+        - complexity
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        state:
+          $ref: '#/components/schemas/State'
+        complexity:
+          $ref: '#/components/schemas/Complexity'
+        estimatedDurationInHours:
+          type: integer
+        expectedResult:
+          type: string
+        actualResult:
+          type: string
+        createdAt:
+          type: integer
+          format: int64
+        startedAt:
+          type: string
+        finishedAt:
+          type: string
+      example:
+        id: 2ebeba4e-67a0-44f9-baed-2ebf6c903648
+        title: Learn to design an API
+        description: A project for learning and applying REST API practises
+        tasks:
+          - id: 1adfb959-5152-4cd7-abae-00ea07fa6056
+            title: Learn OpenApi
+            description: A task for learning the OpenApi specification
+            done: false
+            estimatedDurationInHours: 12
+            result: More knowledge about OpenApi
+        state: IN_PROGRESS
+        complexity: EASY
+        estimatedDurationInHours: 23
+        expectedResult: Learning something.
+        actualResult: Learned a lot!
+        createdAt: 1649693507720
+        startedAt: 1649693507720
+        finishedAt: 1649693507720
+
+    Task:
+      type: object
+      required:
+        - title
+        - done
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        done:
+          type: boolean
+        estimatedDurationInHours:
+          type: integer
+        result:
+          type: string
+      example:
+        id: 1adfb959-5152-4cd7-abae-00ea07fa6056
+        title: Learn OpenApi
+        description: A task for learning the OpenApi specification
+        done: false
+        estimatedDurationInHours: 12
+        result: More knowledge about OpenApi
+
+    State:
+      type: string
+      enum:
+        - INITIATED
+        - IN_PROGRESS
+        - HALTED
+        - FINISHED
+
+    Complexity:
+      type: string
+      enum:
+        - EASY
+        - MEDIUM
+        - DIFFICULT
+
+tags:
+  - name: project
+    description: An operation including projects
+
+  - name: task
+    description: An operation including tasks
