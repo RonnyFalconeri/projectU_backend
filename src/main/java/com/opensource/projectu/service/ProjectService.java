@@ -2,6 +2,7 @@ package com.opensource.projectu.service;
 
 import com.opensource.projectu.exception.ProjectNotFoundException;
 import com.opensource.projectu.openapi.model.Project;
+import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.repository.ProjectRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,8 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
-import static com.opensource.projectu.util.ProjectPersistenceUtil.generateUniqueId;
-import static com.opensource.projectu.util.ProjectPersistenceUtil.getCurrentTimestamp;
+import static com.opensource.projectu.util.ProjectPersistenceUtil.*;
 
 @Service
 @AllArgsConstructor
@@ -32,7 +32,7 @@ public class ProjectService {
 
     public Project createProject(Project project) {
         return projectRepository.save(project
-                .id(generateUniqueId(UUID.randomUUID(), projectRepository))
+                .id(generateUniqueIdForProject(UUID.randomUUID(), projectRepository))
                 .createdAt(getCurrentTimestamp()));
     }
 
@@ -73,5 +73,14 @@ public class ProjectService {
         } else {
             throw new ProjectNotFoundException(id);
         }
+    }
+
+    public Project createTask(UUID id, Task task) {
+        return projectRepository.findById(id)
+                .map(project -> {
+                    task.id(generateUniqueIdForTask(UUID.randomUUID(), projectRepository));
+                    return projectRepository.save(addTaskToProject(project, task));
+                })
+                .orElseThrow(() -> new ProjectNotFoundException(id));
     }
 }

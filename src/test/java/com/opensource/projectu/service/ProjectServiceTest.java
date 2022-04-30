@@ -13,9 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
-
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
+import static testutil.MockTestingUtil.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProjectServiceTest {
@@ -46,10 +46,6 @@ class ProjectServiceTest {
         assertThat(returnedProject).isEqualTo(mockProject);
     }
 
-    private int generateRandomInteger(int max) {
-        return (int) (Math.random() * ((max) + 1));
-    }
-
     @Test
     void getProjectByIdShouldReturnProjectWhenProjectFound() {
         var mockProject = buildMockProject();
@@ -64,12 +60,10 @@ class ProjectServiceTest {
 
     @Test
     void getProjectByIdShouldThrowExceptionWhenProjectNotFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.findById(mockProject.getId()))
+        when(projectRepository.findById(id))
                 .thenReturn(Optional.empty());
-
-        var id = mockProject.getId();
 
         assertThatThrownBy(
                 () -> projectService.getProjectById(id))
@@ -120,141 +114,86 @@ class ProjectServiceTest {
 
     @Test
     void deleteProjectShouldNotThrowExceptionWhenProjectFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.existsById(mockProject.getId()))
+        when(projectRepository.existsById(id))
                 .thenReturn(true);
         
         assertThatCode(
-                () -> projectService.deleteProject(mockProject.getId()))
+                () -> projectService.deleteProject(id))
                 .doesNotThrowAnyException();
     }
 
     @Test
     void deleteProjectShouldThrowExceptionWhenProjectNotFound() {
-        var mockProject = buildMockProject();
+        var id = UUID.randomUUID();
 
-        when(projectRepository.existsById(mockProject.getId()))
+        when(projectRepository.existsById(id))
                 .thenReturn(false);
-
-        var id = mockProject.getId();
 
         assertThatThrownBy(
                 () -> projectService.deleteProject(id))
                 .isInstanceOf(ProjectNotFoundException.class);
     }
 
-    private Project buildMockProject() {
-        return Project.builder()
-                .id(UUID.randomUUID())
-                .title("title1")
-                .description("description1")
-                .tasks(Arrays.asList(
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(1)
-                                .build(),
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task2")
-                                .description("task description2")
-                                .done(false)
-                                .estimatedDurationInHours(2)
-                                .build(),
-                        Task.builder()
-                                .id(UUID.randomUUID())
-                                .title("task1")
-                                .description("task description1")
-                                .done(false)
-                                .estimatedDurationInHours(3)
-                                .build()
-                ))
-                .state(State.INITIATED)
-                .complexity(Complexity.EASY)
-                .estimatedDurationInHours(10)
-                .expectedResult("1 successful unit test")
-                .createdAt(1508484583267L)
-                .startedAt("01.01.2022")
-                .build();
+    @Test
+    void createTaskShouldReturnProjectWithNewTaskWhenSuccess() {
+        var mockProject = buildMockProject();
+        var mockTask = buildMockTask();
+        var originalTaskCount = mockProject.getTasks().size();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.createTask(mockProject.getId(), mockTask);
+
+        assertThat(returnedProject.getTasks())
+                .hasSize(originalTaskCount + 1)
+                .contains(mockTask);
     }
 
-    private List<Project> buildMockProjects() {
-        return new ArrayList<>(Arrays.asList(
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title1")
-                        .description("description1")
-                        .tasks(Arrays.asList(
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(1)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task2")
-                                        .description("task description2")
-                                        .done(false)
-                                        .estimatedDurationInHours(2)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(3)
-                                        .build()
-                        ))
-                        .state(State.INITIATED)
-                        .complexity(Complexity.EASY)
-                        .estimatedDurationInHours(10)
-                        .expectedResult("1 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("01.01.2022")
-                        .build(),
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title2")
-                        .description("description2")
-                        .state(State.HALTED)
-                        .complexity(Complexity.MEDIUM)
-                        .estimatedDurationInHours(20)
-                        .expectedResult("2 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("02.01.2022")
-                        .build(),
-                Project.builder()
-                        .id(UUID.randomUUID())
-                        .title("title3")
-                        .description("description3")
-                        .tasks(Arrays.asList(
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task1")
-                                        .description("task description1")
-                                        .done(false)
-                                        .estimatedDurationInHours(1)
-                                        .build(),
-                                Task.builder()
-                                        .id(UUID.randomUUID())
-                                        .title("task2")
-                                        .description("task description2")
-                                        .done(false)
-                                        .estimatedDurationInHours(2)
-                                        .build()
-                        ))
-                        .state(State.FINISHED)
-                        .complexity(Complexity.DIFFICULT)
-                        .estimatedDurationInHours(30)
-                        .expectedResult("3 successful unit test")
-                        .createdAt(1508484583267L)
-                        .startedAt("03.01.2022")
-                        .build()
-        ));
+    @Test
+    void createTaskShouldReturnProjectIncludingNewTaskWithGeneratedUniqueId() {
+        var mockProject = Project.builder()
+                .id(UUID.randomUUID())
+                .title("title1")
+                .tasks(Collections.emptyList())
+                .state(State.INITIATED)
+                .complexity(Complexity.EASY)
+                .build();
+
+        var mockTaskWithoutId = Task.builder()
+                .title("new task")
+                .description("task description new")
+                .done(false)
+                .estimatedDurationInHours(30)
+                .build();
+
+        when(projectRepository.findById(mockProject.getId()))
+                .thenReturn(Optional.of(mockProject));
+
+        when(projectRepository.save(mockProject))
+                .thenReturn(mockProject);
+
+        var returnedProject = projectService.createTask(mockProject.getId(), mockTaskWithoutId);
+        var returnedTask = returnedProject.getTasks().get(0);
+
+        assertThat(returnedTask.getId()).isNotNull();
+    }
+
+    @Test
+    void createTaskShouldThrowExceptionWhenProjectNotFound() {
+        var id = UUID.randomUUID();
+        var mockTask = buildMockTask();
+
+        when(projectRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+                () -> projectService.createTask(id, mockTask))
+                .isInstanceOf(ProjectNotFoundException.class);
     }
 }

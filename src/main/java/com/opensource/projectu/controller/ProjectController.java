@@ -2,6 +2,7 @@ package com.opensource.projectu.controller;
 
 import com.opensource.projectu.openapi.model.Project;
 import com.opensource.projectu.openapi.api.ProjectsApi;
+import com.opensource.projectu.openapi.model.Task;
 import com.opensource.projectu.service.ProjectService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,10 @@ public class ProjectController implements ProjectsApi {
     public ResponseEntity<Void> deleteProject(UUID id) {
         projectService.deleteProject(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<Project> createTask(UUID id, Task task) {
+        return new ResponseEntity<>(projectService.createTask(id, task), HttpStatus.CREATED);
     }
 }
