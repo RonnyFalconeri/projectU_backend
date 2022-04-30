@@ -47,6 +47,3 @@ the `openapi.yml` with the maven task:
 ```shell
 maven clean compile
 ```
-
-
-## Docker
